@@ -5,12 +5,25 @@ import {
   generateBoards,
   placeMines,
 } from "@app/handlers";
+import { boardAtom } from "@app/stores";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
 
 export const Board = () => {
+  const [board, setBoard] = useAtom(boardAtom);
+
   const gameLevel = GAME_LEVELS.Expert;
   const rows = GAME_LEVEL_SETTING_OPTIONS[gameLevel].rows;
   const cols = GAME_LEVEL_SETTING_OPTIONS[gameLevel].cols;
   const mineCount = GAME_LEVEL_SETTING_OPTIONS[gameLevel].mineCount;
+
+  useEffect(() => {
+    const newBoard = calculateAdjacentMines(
+      placeMines(generateBoards(rows, cols), mineCount)
+    );
+    setBoard(newBoard);
+  }, []);
+
   return (
     <div
       className="grid gap-0.5"
@@ -19,11 +32,9 @@ export const Board = () => {
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
       }}
     >
-      {calculateAdjacentMines(placeMines(generateBoards(rows, cols), mineCount))
-        .flat()
-        .map((cell, index) => (
-          <Cell key={index} cell={cell} />
-        ))}
+      {board?.flat().map((cell, index) => (
+        <Cell key={index} cell={cell} />
+      ))}
     </div>
   );
 };

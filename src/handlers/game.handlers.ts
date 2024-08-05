@@ -2,8 +2,10 @@ import { MINE_COUNT_DIRECTIONS } from "@app/config";
 import { Cell } from "@app/types";
 
 export const generateBoards = (rows: number, cols: number): Cell[][] => {
-  const board = Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () => ({
+  const board = Array.from({ length: rows }, (_, row) =>
+    Array.from({ length: cols }, (_, col) => ({
+      row,
+      col,
       hasMine: false,
       isRevealed: false,
       adjacentMines: 0,
@@ -38,8 +40,10 @@ export const calculateAdjacentMines = (board: Cell[][]) => {
       for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
         const rowToCheck = row + dirRow;
         const colToCheck = col + dirCol;
+        // Null pointer
         if (rowToCheck < 0 || rowToCheck >= rows) continue;
         if (colToCheck < 0 || colToCheck >= cols) continue;
+
         if (board[rowToCheck][colToCheck].hasMine) count++;
       }
       board[row][col].adjacentMines = count;
@@ -47,3 +51,35 @@ export const calculateAdjacentMines = (board: Cell[][]) => {
   }
   return board;
 };
+
+export const revealCell = (
+  board: Cell[][],
+  row: number,
+  col: number
+): Cell[][] => {
+  let cell = board[row][col];
+  if (cell.isRevealed) return board;
+  return revealCellRecursive(board, row, col);
+};
+
+function revealCellRecursive(
+  board: Cell[][],
+  row: number,
+  col: number
+): Cell[][] {
+  let rows = board.length;
+  let cols = board[0].length;
+  // Null pointer
+  if (row < 0 || row >= rows) return board;
+  if (col < 0 || col >= cols) return board;
+
+  let cell = board[row][col];
+  if (cell.isRevealed || cell.hasMine) return board;
+  cell.isRevealed = true;
+  if (cell.adjacentMines === 0) {
+    for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+      revealCellRecursive(board, row + dirRow, col + dirCol);
+    }
+  }
+  return [...board];
+}
