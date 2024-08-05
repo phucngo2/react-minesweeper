@@ -1,3 +1,4 @@
+import { MINE_ADJECTION_CELL_WITH_COLOR } from "@app/config";
 import { Cell as ICell } from "@app/types";
 import { useMemo } from "react";
 
@@ -7,8 +8,11 @@ interface Props {
 
 export const Cell: React.FC<Props> = ({ cell }) => {
   let renderContent = useMemo(() => {
-    if (cell.hasMine) return "💣";
-    if (cell.adjacentMines) return cell.adjacentMines;
+    if (cell.hasMine) return <span>💣</span>;
+    if (cell.adjacentMines) {
+      let RenderCell = MINE_ADJECTION_CELL_WITH_COLOR[cell.adjacentMines];
+      return <RenderCell />;
+    }
     return "";
   }, [cell]);
 
