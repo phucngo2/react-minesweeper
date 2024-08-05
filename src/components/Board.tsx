@@ -1,4 +1,5 @@
 import { Cell } from "@app/components";
+import { generateBoards, placeMines } from "@app/handlers";
 
 export const Board = () => {
   return (
@@ -9,9 +10,11 @@ export const Board = () => {
         gridTemplateRows: "repeat(16, 1fr)",
       }}
     >
-      {[...Array(480).keys()].map((item: number) => (
-        <Cell key={item} />
-      ))}
+      {placeMines(generateBoards(16, 30), 99)
+        .flat()
+        .map((cell, index) => (
+          <Cell key={index} cell={cell} />
+        ))}
     </div>
   );
 };
