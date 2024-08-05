@@ -1,6 +1,10 @@
 import { Cell } from "@app/components";
 import { GAME_LEVEL_SETTING_OPTIONS, GAME_LEVELS } from "@app/config";
-import { generateBoards, placeMines } from "@app/handlers";
+import {
+  calculateAdjacentMines,
+  generateBoards,
+  placeMines,
+} from "@app/handlers";
 
 export const Board = () => {
   const gameLevel = GAME_LEVELS.Expert;
@@ -15,7 +19,7 @@ export const Board = () => {
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
       }}
     >
-      {placeMines(generateBoards(rows, cols), mineCount)
+      {calculateAdjacentMines(placeMines(generateBoards(rows, cols), mineCount))
         .flat()
         .map((cell, index) => (
           <Cell key={index} cell={cell} />
