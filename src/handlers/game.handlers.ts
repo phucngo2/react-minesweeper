@@ -16,14 +16,15 @@ export const generateBoards = (rows: number, cols: number): Cell[][] => {
 };
 
 export const placeMines = (board: Cell[][], mineCount: number) => {
-  let rows = board.length;
-  let cols = board[0].length;
-  let minesToPlace = mineCount;
+  const rows: number = board.length;
+  const cols: number = board[0].length;
+  let minesToPlace: number = mineCount;
   while (minesToPlace > 0) {
-    const row = Math.floor(Math.random() * rows);
-    const col = Math.floor(Math.random() * cols);
-    if (!board[row][col].hasMine) {
-      board[row][col].hasMine = true;
+    const row: number = Math.floor(Math.random() * rows);
+    const col: number = Math.floor(Math.random() * cols);
+    const cell: Cell = board[row][col];
+    if (!cell.hasMine) {
+      cell.hasMine = true;
       minesToPlace--;
     }
   }
@@ -31,23 +32,24 @@ export const placeMines = (board: Cell[][], mineCount: number) => {
 };
 
 export const calculateAdjacentMines = (board: Cell[][]) => {
-  let rows = board.length;
-  let cols = board[0].length;
+  const rows: number = board.length;
+  const cols: number = board[0].length;
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      if (board[row][col].hasMine) continue;
+      const currentCell: Cell = board[row][col];
+      if (currentCell.hasMine) continue;
 
-      let count = 0;
+      let count: number = 0;
       for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-        const rowToCheck = row + dirRow;
-        const colToCheck = col + dirCol;
+        const rowToCheck: number = row + dirRow;
+        const colToCheck: number = col + dirCol;
         // Null pointer
         if (rowToCheck < 0 || rowToCheck >= rows) continue;
         if (colToCheck < 0 || colToCheck >= cols) continue;
 
         if (board[rowToCheck][colToCheck].hasMine) count++;
       }
-      board[row][col].adjacentMines = count;
+      currentCell.adjacentMines = count;
     }
   }
   return board;
@@ -58,7 +60,7 @@ export const revealCell = (
   row: number,
   col: number
 ): Cell[][] => {
-  let cell = board[row][col];
+  const cell: Cell = board[row][col];
   if (cell.isRevealed) return board;
   return revealCellRecursive(board, row, col);
 };
@@ -68,13 +70,13 @@ function revealCellRecursive(
   row: number,
   col: number
 ): Cell[][] {
-  let rows = board.length;
-  let cols = board[0].length;
+  const rows: number = board.length;
+  const cols: number = board[0].length;
   // Null pointer
   if (row < 0 || row >= rows) return board;
   if (col < 0 || col >= cols) return board;
 
-  let cell = board[row][col];
+  const cell: Cell = board[row][col];
   if (cell.isRevealed || cell.hasMine) return board;
   cell.isRevealed = true;
   if (cell.adjacentMines === 0) {
