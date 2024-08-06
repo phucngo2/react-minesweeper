@@ -1,16 +1,24 @@
 import { Cell } from "@app/components";
-import { GAME_LEVEL_SETTING_OPTIONS, GameLevels } from "@app/config";
+import {
+  GAME_LEVEL_SETTING_OPTIONS,
+  GameLevels,
+  GameStates,
+} from "@app/config";
 import {
   calculateAdjacentMines,
   generateBoards,
   placeMines,
+  revealCell,
 } from "@app/handlers";
-import { boardAtom } from "@app/stores";
+import { useBoard } from "@app/hooks";
+import { gameStateAtom } from "@app/stores";
+import { Cell as ICell } from "@app/types";
 import { useAtom } from "jotai";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 export const Board = () => {
-  const [board, setBoard] = useAtom(boardAtom);
+  const { board, setBoard } = useBoard();
+  const [gameState, setGameState] = useAtom(gameStateAtom);
 
   const gameLevel = GameLevels.Expert;
   const rows = GAME_LEVEL_SETTING_OPTIONS[gameLevel].rows;
@@ -24,6 +32,21 @@ export const Board = () => {
     setBoard(newBoard);
   }, []);
 
+  const handleCellClick = useCallback(
+    (cell: ICell) => {
+      let cellDisabled = gameState !== "Playing" || cell.isRevealed;
+      if (cellDisabled) return;
+
+      if (cell.hasMine) return setGameState(GameStates.Lost);
+      if (board) setBoard(revealCell(board, cell.row, cell.col));
+    },
+    [gameState, board, setBoard, setGameState]
+  );
+
+  const handleCellRightClick = useCallback((cell: ICell) => {
+    // Your right click handling logic here
+  }, []);
+
   return (
     <div
       className="grid gap-0.5"
@@ -32,8 +55,13 @@ export const Board = () => {
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
       }}
     >
-      {board?.flat().map((cell, index) => (
-        <Cell key={index} cell={cell} />
+      {board?.flat().map((cell) => (
+        <Cell
+          key={`cell-${cell.row}-${cell.col}`}
+          cell={cell}
+          handleCellClick={handleCellClick}
+          handleCellRightClick={handleCellRightClick}
+        />
       ))}
     </div>
   );
