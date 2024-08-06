@@ -61,7 +61,7 @@ export const revealCell = (
   col: number
 ): Cell[][] => {
   const cell: Cell = board[row][col];
-  if (cell.isRevealed) return board;
+  if (cell.isRevealed || cell.isFlagged) return board;
   return revealCellRecursive(board, row, col);
 };
 
@@ -84,5 +84,17 @@ function revealCellRecursive(
       revealCellRecursive(board, row + dirRow, col + dirCol);
     }
   }
-  return [...board];
+  return board;
 }
+
+export const flagCell = (
+  board: Cell[][],
+  row: number,
+  col: number
+): Cell[][] => {
+  const cell: Cell = board[row][col];
+  if (cell.isRevealed) return board;
+  const futureFlag = !cell.isFlagged;
+  cell.isFlagged = futureFlag;
+  return board;
+};

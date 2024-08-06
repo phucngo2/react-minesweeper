@@ -6,6 +6,7 @@ import {
 } from "@app/config";
 import {
   calculateAdjacentMines,
+  flagCell,
   generateBoards,
   placeMines,
   revealCell,
@@ -34,7 +35,8 @@ export const Board = () => {
 
   const handleCellClick = useCallback(
     (cell: ICell) => {
-      let cellDisabled = gameState !== "Playing" || cell.isRevealed;
+      let cellDisabled =
+        gameState !== "Playing" || cell.isRevealed || cell.isFlagged;
       if (cellDisabled) return;
 
       if (cell.hasMine) return setGameState(GameStates.Lost);
@@ -43,9 +45,15 @@ export const Board = () => {
     [gameState, board, setBoard, setGameState]
   );
 
-  const handleCellRightClick = useCallback((cell: ICell) => {
-    // Your right click handling logic here
-  }, []);
+  const handleCellRightClick = useCallback(
+    (cell: ICell) => {
+      let cellDisabled = gameState !== "Playing" || cell.isRevealed;
+      if (cellDisabled) return;
+
+      if (board) setBoard(flagCell(board, cell.row, cell.col));
+    },
+    [gameState, board, setBoard, setGameState]
+  );
 
   return (
     <div
@@ -54,6 +62,7 @@ export const Board = () => {
         gridTemplateRows: `repeat(${rows}, 1fr)`,
         gridTemplateColumns: `repeat(${cols}, 1fr)`,
       }}
+      onContextMenu={(e) => e.preventDefault()}
     >
       {board?.flat().map((cell) => (
         <Cell

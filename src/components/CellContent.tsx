@@ -10,6 +10,7 @@ interface Props {
 export const CellContent: React.FC<Props> = ({ cell }) => {
   const gameState = useAtomValue(gameStateAtom);
   if (gameState == GameStates.Lost && cell.hasMine) return <span>💣</span>;
+  if (cell.isFlagged) return <span>🚩</span>;
   if (!cell.isRevealed) return "";
   if (cell.adjacentMines) {
     let RenderCellContent = MINE_ADJECTION_CELL_WITH_COLOR[cell.adjacentMines];

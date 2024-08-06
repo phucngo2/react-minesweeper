@@ -17,7 +17,10 @@ export const Cell: React.FC<Props> = memo(
         }}
         className="w-6 h-6 p-1 btn min-w-6 min-h-6"
         onClick={() => handleCellClick(cell)}
-        onContextMenu={() => handleCellRightClick(cell)}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          handleCellRightClick(cell);
+        }}
       >
         <CellContent cell={cell} />
       </button>
