@@ -77,7 +77,7 @@ function revealCellRecursive(
   if (col < 0 || col >= cols) return board;
 
   const cell: Cell = board[row][col];
-  if (cell.isRevealed || cell.hasMine) return board;
+  if (cell.isRevealed || cell.hasMine || cell.isFlagged) return board;
   cell.isRevealed = true;
   if (cell.adjacentMines === 0) {
     for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
