@@ -5,6 +5,7 @@ export interface Cell {
   col: number;
   hasMine: boolean;
   isRevealed: boolean;
+  isFlagged: boolean;
   adjacentMines: number;
 }
 

@@ -2,12 +2,13 @@ import { MINE_COUNT_DIRECTIONS } from "@app/config";
 import { Cell } from "@app/types";
 
 export const generateBoards = (rows: number, cols: number): Cell[][] => {
-  const board = Array.from({ length: rows }, (_, row) =>
-    Array.from({ length: cols }, (_, col) => ({
+  const board = Array.from({ length: rows }, (_, row: number) =>
+    Array.from({ length: cols }, (_, col: number) => ({
       row,
       col,
       hasMine: false,
       isRevealed: false,
+      isFlagged: false,
       adjacentMines: 0,
     }))
   );
