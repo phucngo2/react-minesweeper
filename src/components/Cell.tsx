@@ -22,7 +22,12 @@ export const Cell: React.FC<Props> = memo(
           handleCellRightClick(cell);
         }}
       >
-        <CellContent cell={cell} />
+        <CellContent
+          isFlagged={cell.isFlagged}
+          hasMine={cell.hasMine}
+          isRevealed={cell.isRevealed}
+          adjacentMines={cell.adjacentMines}
+        />
       </button>
     );
   }
