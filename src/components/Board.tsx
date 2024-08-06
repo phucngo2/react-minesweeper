@@ -1,5 +1,5 @@
 import { Cell } from "@app/components";
-import { GAME_LEVEL_SETTING_OPTIONS, GAME_LEVELS } from "@app/config";
+import { GAME_LEVEL_SETTING_OPTIONS, GameLevels } from "@app/config";
 import {
   calculateAdjacentMines,
   generateBoards,
@@ -12,7 +12,7 @@ import { useEffect } from "react";
 export const Board = () => {
   const [board, setBoard] = useAtom(boardAtom);
 
-  const gameLevel = GAME_LEVELS.Expert;
+  const gameLevel = GameLevels.Expert;
   const rows = GAME_LEVEL_SETTING_OPTIONS[gameLevel].rows;
   const cols = GAME_LEVEL_SETTING_OPTIONS[gameLevel].cols;
   const mineCount = GAME_LEVEL_SETTING_OPTIONS[gameLevel].mineCount;
