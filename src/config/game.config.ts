@@ -1,4 +1,8 @@
-import { GameLevelSettingOptions, GameLevelsRecord } from "@app/types";
+import {
+  GameLevelSettingOptions,
+  GameLevelsRecord,
+  GameStatesRecord,
+} from "@app/types";
 
 export const MINE_COUNT_DIRECTIONS = [
   [-1, -1],
@@ -33,3 +37,10 @@ export const GAME_LEVEL_SETTING_OPTIONS: GameLevelSettingOptions = {
     mineCount: 99,
   },
 };
+
+export const GameStates: GameStatesRecord = {
+  Lost: "Lost",
+  Paused: "Paused",
+  Playing: "Playing",
+  Won: "Won",
+} as const;

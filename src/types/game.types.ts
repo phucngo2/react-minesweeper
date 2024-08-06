@@ -1,3 +1,5 @@
+import { EnumRecord } from "./global.types";
+
 export interface Cell {
   row: number;
   col: number;
@@ -6,13 +8,14 @@ export interface Cell {
   adjacentMines: number;
 }
 
-export type GameLevels = "Beginner" | "Intermediate" | "Expert";
-export type GameLevelsRecord = {
-  [K in GameLevels]: K;
-};
+export type GameLevelsType = "Beginner" | "Intermediate" | "Expert";
+export type GameLevelsRecord = EnumRecord<GameLevelsType>;
 export interface GameLevelSetting {
   rows: number;
   cols: number;
   mineCount: number;
 }
-export type GameLevelSettingOptions = Record<GameLevels, GameLevelSetting>;
+export type GameLevelSettingOptions = Record<GameLevelsType, GameLevelSetting>;
+
+export type GameStatesType = "Paused" | "Won" | "Lost" | "Playing";
+export type GameStatesRecord = EnumRecord<GameStatesType>;
