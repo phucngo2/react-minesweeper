@@ -7,15 +7,17 @@ export const Header = () => {
   const gameState = useAtomValue(gameStateAtom);
 
   return (
-    <div className="flex flex-row items-center justify-between gap-4 font-semibold">
-      <div className="flex flex-row items-center gap-2.5">
-        <button className="w-10 h-10 min-h-0 btn">⚙️</button>
+    <div className="flex flex-row items-center justify-between gap-3 font-semibold">
+      <div className="flex flex-row items-center gap-2.5 card bg-neutral px-3 p-2">
+        <button className="w-10 h-10 min-h-0 text-xl btn">⚙️</button>
         <ButtonPlay />
-        <div>{gameState}</div>
       </div>
-      <div className="flex flex-row items-center gap-2.5">
-        {gameState != GameStates.New && <Timer />}
-      </div>
+      {gameState != GameStates.New && (
+        <div className="flex flex-row items-center gap-2.5 card bg-neutral px-3 p-2">
+          <Timer />
+          <button className="w-10 h-10 min-h-0 text-xl btn">⏸️</button>
+        </div>
+      )}
     </div>
   );
 };
