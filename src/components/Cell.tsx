@@ -13,9 +13,9 @@ export const Cell: React.FC<Props> = memo(
     return (
       <button
         style={{
-          opacity: cell.isRevealed ? 0.6 : 1,
+          opacity: cell.isRevealed ? 0.5 : 1,
         }}
-        className="w-6 h-6 p-1 btn min-w-6 min-h-6"
+        className="w-[26px] h-[26px] p-1 btn min-w-6 min-h-6"
         onClick={() => handleCellClick(cell)}
         onContextMenu={(e) => {
           e.preventDefault();
