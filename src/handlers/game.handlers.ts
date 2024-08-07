@@ -1,5 +1,5 @@
 import { MINE_COUNT_DIRECTIONS } from "@app/config";
-import { Cell } from "@app/types";
+import { Cell, CountFlagResult, RevealCellResult } from "@app/types";
 
 export const generateBoards = (rows: number, cols: number): Cell[][] => {
   const board = Array.from({ length: rows }, (_, row: number) =>
@@ -59,10 +59,55 @@ export const revealCell = (
   board: Cell[][],
   row: number,
   col: number
-): Cell[][] => {
+): RevealCellResult => {
   const cell: Cell = board[row][col];
-  if (cell.isRevealed || cell.isFlagged) return board;
-  return revealCellRecursive(board, row, col);
+  if (cell.hasMine)
+    return {
+      hasMine: true,
+      board,
+    };
+  if (cell.isRevealed && cell.adjacentMines)
+    return revealNumberAdjacentCell(board, row, col);
+  if (cell.isRevealed || cell.isFlagged)
+    return {
+      hasMine: false,
+      board,
+    };
+  return {
+    hasMine: false,
+    board: revealCellRecursive(board, row, col),
+  };
+};
+
+export const revealNumberAdjacentCell = (
+  board: Cell[][],
+  row: number,
+  col: number
+): RevealCellResult => {
+  const cell: Cell = board[row][col];
+  let countFlagsResult: CountFlagResult = countFlags(board, row, col);
+  if (cell.adjacentMines != countFlagsResult.flagCount)
+    return {
+      board,
+      hasMine: false,
+    };
+
+  const rows: number = board.length;
+  const cols: number = board[0].length;
+  for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+    const rowToCheck: number = row + dirRow;
+    const colToCheck: number = col + dirCol;
+    // Null pointer
+    if (rowToCheck < 0 || rowToCheck >= rows) continue;
+    if (colToCheck < 0 || colToCheck >= cols) continue;
+
+    board = revealCellRecursive(board, rowToCheck, colToCheck);
+  }
+
+  return {
+    hasMine: countFlagsResult.hasFalseNegative,
+    board,
+  };
 };
 
 function revealCellRecursive(
@@ -81,7 +126,7 @@ function revealCellRecursive(
   cell.isRevealed = true;
   if (cell.adjacentMines === 0) {
     for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-      revealCellRecursive(board, row + dirRow, col + dirCol);
+      board = revealCellRecursive(board, row + dirRow, col + dirCol);
     }
   }
   return board;
@@ -98,3 +143,33 @@ export const flagCell = (
   cell.isFlagged = futureFlag;
   return board;
 };
+
+function countFlags(
+  board: Cell[][],
+  row: number,
+  col: number
+): CountFlagResult {
+  const rows: number = board.length;
+  const cols: number = board[0].length;
+  let flagCount: number = 0;
+  let hasFalseNegative: boolean = false;
+  for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+    const rowToCheck: number = row + dirRow;
+    const colToCheck: number = col + dirCol;
+    // Null pointer
+    if (rowToCheck < 0 || rowToCheck >= rows) continue;
+    if (colToCheck < 0 || colToCheck >= cols) continue;
+
+    const cellToCheck: Cell = board[rowToCheck][colToCheck];
+    if (cellToCheck.isFlagged) {
+      flagCount++;
+      if (!cellToCheck.hasMine) {
+        hasFalseNegative = true;
+      }
+    }
+  }
+  return {
+    flagCount,
+    hasFalseNegative,
+  };
+}
