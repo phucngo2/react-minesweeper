@@ -13,7 +13,7 @@ import {
 } from "@app/handlers";
 import { useBoard } from "@app/hooks";
 import { gameStateAtom } from "@app/stores";
-import { Cell as ICell } from "@app/types";
+import { Cell as ICell, RevealCellResult } from "@app/types";
 import { useAtom } from "jotai";
 import { useCallback, useEffect } from "react";
 
@@ -35,12 +35,18 @@ export const Board = () => {
 
   const handleCellClick = useCallback(
     (cell: ICell) => {
-      let cellDisabled =
-        gameState !== "Playing" || cell.isRevealed || cell.isFlagged;
+      let cellDisabled = gameState !== "Playing" || cell.isFlagged;
       if (cellDisabled) return;
 
-      if (cell.hasMine) return setGameState(GameStates.Lost);
-      if (board) setBoard(revealCell(board, cell.row, cell.col));
+      if (board) {
+        const revealCellResult: RevealCellResult = revealCell(
+          board,
+          cell.row,
+          cell.col
+        );
+        if (revealCellResult.hasMine) setGameState(GameStates.Lost);
+        setBoard(revealCellResult.board);
+      }
     },
     [gameState, board, setBoard, setGameState]
   );
