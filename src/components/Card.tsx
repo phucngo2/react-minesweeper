@@ -11,7 +11,7 @@ export const Card: React.FC<Props> = ({ children }) => {
   const gameState = useAtomValue(gameStateAtom);
   if (gameState == GameStates.New) return <></>;
   return (
-    <div className="relative p-3 bg-neutral card">
+    <div className="relative p-3 bg-neutral card w-fit">
       {children}
       <PauseOverlay />
     </div>
