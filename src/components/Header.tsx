@@ -1,4 +1,5 @@
-import { ButtonPlay } from "@app/components";
+import { ButtonPlay, Timer } from "@app/components";
+import { GameStates } from "@app/config";
 import { gameStateAtom } from "@app/stores";
 import { useAtomValue } from "jotai";
 
@@ -12,7 +13,9 @@ export const Header = () => {
         <ButtonPlay />
         <div>{gameState}</div>
       </div>
-      <div>00:00</div>
+      <div className="flex flex-row items-center gap-2.5">
+        {gameState != GameStates.New && <Timer />}
+      </div>
     </div>
   );
 };

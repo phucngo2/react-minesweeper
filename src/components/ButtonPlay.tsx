@@ -5,13 +5,14 @@ import {
   placeMines,
 } from "@app/handlers";
 import { useBoard } from "@app/hooks";
-import { gameLevelDetailAtom, gameStateAtom } from "@app/stores";
+import { gameLevelDetailAtom, gameStateAtom, timeAtom } from "@app/stores";
 import { useAtomValue, useSetAtom } from "jotai";
 
 export const ButtonPlay = () => {
   const { rows, cols, mineCount } = useAtomValue(gameLevelDetailAtom);
   const setGameState = useSetAtom(gameStateAtom);
   const { setBoard } = useBoard();
+  const setSeconds = useSetAtom(timeAtom);
 
   const handleClick = () => {
     const newBoard = calculateAdjacentMines(
@@ -19,6 +20,7 @@ export const ButtonPlay = () => {
     );
     setBoard(newBoard);
     setGameState(GameStates.Playing);
+    setSeconds(0);
   };
 
   return (
