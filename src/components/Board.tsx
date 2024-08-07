@@ -2,7 +2,7 @@ import { Cell } from "@app/components";
 import { GameStates } from "@app/config";
 import { flagCell, revealCell } from "@app/handlers";
 import { useBoard } from "@app/hooks";
-import { gameLevelDetailAtom, gameStateAtom } from "@app/stores";
+import { flagCountAtom, gameLevelDetailAtom, gameStateAtom } from "@app/stores";
 import { Cell as ICell, RevealCellResult } from "@app/types";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback } from "react";
@@ -11,6 +11,7 @@ export const Board = () => {
   const { board, setBoard } = useBoard();
   const [gameState, setGameState] = useAtom(gameStateAtom);
   const { rows, cols } = useAtomValue(gameLevelDetailAtom);
+  const [flagCount, setFlagCount] = useAtom(flagCountAtom);
 
   const handleCellClick = useCallback(
     (cell: ICell) => {
@@ -32,10 +33,14 @@ export const Board = () => {
 
   const handleCellRightClick = useCallback(
     (cell: ICell) => {
-      let cellDisabled = gameState !== "Playing" || cell.isRevealed;
+      let cellDisabled =
+        gameState !== "Playing" || cell.isRevealed || !flagCount;
       if (cellDisabled) return;
 
-      if (board) setBoard(flagCell(board, cell.row, cell.col));
+      if (board) {
+        setBoard(flagCell(board, cell.row, cell.col));
+        setFlagCount((state) => state - 1);
+      }
     },
     [gameState, board, setBoard, setGameState]
   );

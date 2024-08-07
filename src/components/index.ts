@@ -5,6 +5,7 @@ export * from "./ButtonSettings";
 export * from "./Card";
 export * from "./Cell";
 export * from "./CellContent";
+export * from "./FlagCount";
 export * from "./Header";
 export * from "./Layout";
 export * from "./PauseOverlay";

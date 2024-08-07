@@ -30,5 +30,5 @@ export const Timer = () => {
     return date.toISOString().substring(11, 19);
   }, [seconds]);
 
-  return <div className="h-10 min-h-0 btn">{render}</div>;
+  return <div className="h-10 min-h-0 text-base btn">{render}</div>;
 };
