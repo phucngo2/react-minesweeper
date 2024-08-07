@@ -1,9 +1,5 @@
 import { Cell } from "@app/components";
-import {
-  GAME_LEVEL_SETTING_OPTIONS,
-  GameLevels,
-  GameStates,
-} from "@app/config";
+import { GameStates } from "@app/config";
 import {
   calculateAdjacentMines,
   flagCell,
@@ -12,19 +8,15 @@ import {
   revealCell,
 } from "@app/handlers";
 import { useBoard } from "@app/hooks";
-import { gameStateAtom } from "@app/stores";
+import { gameLevelDetailAtom, gameStateAtom } from "@app/stores";
 import { Cell as ICell, RevealCellResult } from "@app/types";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect } from "react";
 
 export const Board = () => {
   const { board, setBoard } = useBoard();
   const [gameState, setGameState] = useAtom(gameStateAtom);
-
-  const gameLevel = GameLevels.Expert;
-  const rows = GAME_LEVEL_SETTING_OPTIONS[gameLevel].rows;
-  const cols = GAME_LEVEL_SETTING_OPTIONS[gameLevel].cols;
-  const mineCount = GAME_LEVEL_SETTING_OPTIONS[gameLevel].mineCount;
+  const { rows, cols, mineCount } = useAtomValue(gameLevelDetailAtom);
 
   useEffect(() => {
     const newBoard = calculateAdjacentMines(
