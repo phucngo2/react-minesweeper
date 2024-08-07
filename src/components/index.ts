@@ -1,6 +1,7 @@
 export * from "./Board";
 export * from "./ButtonPause";
 export * from "./ButtonPlay";
+export * from "./ButtonSettings";
 export * from "./Card";
 export * from "./Cell";
 export * from "./CellContent";
