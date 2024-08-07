@@ -24,8 +24,24 @@ export const ButtonPlay = () => {
   };
 
   return (
-    <button onClick={handleClick} className="w-10 h-10 min-h-0 btn">
-      🙂
-    </button>
+    <div className="tooltip tooltip-bottom" data-tip="Restart">
+      <button onClick={handleClick} className="w-10 h-10 min-h-0 btn">
+        <ButtonPlayContent />
+      </button>
+    </div>
   );
 };
+
+function ButtonPlayContent() {
+  const gameState = useAtomValue(gameStateAtom);
+
+  switch (gameState) {
+    case GameStates.Won:
+      return <>😎</>;
+    case GameStates.Lost:
+      return <>🤯</>;
+
+    default:
+      return <>🙂</>;
+  }
+}
