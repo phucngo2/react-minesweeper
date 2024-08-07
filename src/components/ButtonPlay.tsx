@@ -25,7 +25,7 @@ export const ButtonPlay = () => {
 
   return (
     <div className="tooltip tooltip-bottom" data-tip="Restart">
-      <button onClick={handleClick} className="w-10 h-10 min-h-0 btn">
+      <button onClick={handleClick} className="w-10 h-10 min-h-0 text-lg btn">
         <ButtonPlayContent />
       </button>
     </div>
