@@ -1,6 +1,8 @@
 import { MINE_COUNT_DIRECTIONS } from "@app/config";
 import { Cell, CountFlagResult, RevealCellResult } from "@app/types";
 
+//#region Public game functions
+
 export const generateBoards = (rows: number, cols: number): Cell[][] => {
   const board = Array.from({ length: rows }, (_, row: number) =>
     Array.from({ length: cols }, (_, col: number) => ({
@@ -16,8 +18,7 @@ export const generateBoards = (rows: number, cols: number): Cell[][] => {
 };
 
 export const placeMines = (board: Cell[][], mineCount: number) => {
-  const rows: number = board.length;
-  const cols: number = board[0].length;
+  const { rows, cols } = getBoardDimensions(board);
   let minesToPlace: number = mineCount;
   while (minesToPlace > 0) {
     const row: number = Math.floor(Math.random() * rows);
@@ -32,8 +33,7 @@ export const placeMines = (board: Cell[][], mineCount: number) => {
 };
 
 export const calculateAdjacentMines = (board: Cell[][]) => {
-  const rows: number = board.length;
-  const cols: number = board[0].length;
+  const { rows, cols } = getBoardDimensions(board);
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const currentCell: Cell = board[row][col];
@@ -44,8 +44,7 @@ export const calculateAdjacentMines = (board: Cell[][]) => {
         const rowToCheck: number = row + dirRow;
         const colToCheck: number = col + dirCol;
         // Null pointer
-        if (rowToCheck < 0 || rowToCheck >= rows) continue;
-        if (colToCheck < 0 || colToCheck >= cols) continue;
+        if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
 
         if (board[rowToCheck][colToCheck].hasMine) count++;
       }
@@ -92,14 +91,12 @@ export const revealNumberAdjacentCell = (
       hasMine: false,
     };
 
-  const rows: number = board.length;
-  const cols: number = board[0].length;
+  const { rows, cols } = getBoardDimensions(board);
   for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
     const rowToCheck: number = row + dirRow;
     const colToCheck: number = col + dirCol;
     // Null pointer
-    if (rowToCheck < 0 || rowToCheck >= rows) continue;
-    if (colToCheck < 0 || colToCheck >= cols) continue;
+    if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
 
     board = revealCellRecursive(board, rowToCheck, colToCheck);
   }
@@ -109,28 +106,6 @@ export const revealNumberAdjacentCell = (
     board,
   };
 };
-
-function revealCellRecursive(
-  board: Cell[][],
-  row: number,
-  col: number
-): Cell[][] {
-  const rows: number = board.length;
-  const cols: number = board[0].length;
-  // Null pointer
-  if (row < 0 || row >= rows) return board;
-  if (col < 0 || col >= cols) return board;
-
-  const cell: Cell = board[row][col];
-  if (cell.isRevealed || cell.hasMine || cell.isFlagged) return board;
-  cell.isRevealed = true;
-  if (cell.adjacentMines === 0) {
-    for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-      board = revealCellRecursive(board, row + dirRow, col + dirCol);
-    }
-  }
-  return board;
-}
 
 export const flagCell = (
   board: Cell[][],
@@ -144,21 +119,42 @@ export const flagCell = (
   return board;
 };
 
+//#endregion
+//#region Private functions
+
+function revealCellRecursive(
+  board: Cell[][],
+  row: number,
+  col: number
+): Cell[][] {
+  const { rows, cols } = getBoardDimensions(board);
+  // Null pointer
+  if (isInvalidCoordinate(row, col, rows, cols)) return board;
+
+  const cell: Cell = board[row][col];
+  if (cell.isRevealed || cell.hasMine || cell.isFlagged) return board;
+  cell.isRevealed = true;
+  if (cell.adjacentMines === 0) {
+    for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+      board = revealCellRecursive(board, row + dirRow, col + dirCol);
+    }
+  }
+  return board;
+}
+
 function countFlags(
   board: Cell[][],
   row: number,
   col: number
 ): CountFlagResult {
-  const rows: number = board.length;
-  const cols: number = board[0].length;
+  const { rows, cols } = getBoardDimensions(board);
   let flagCount: number = 0;
   let hasFalseNegative: boolean = false;
   for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
     const rowToCheck: number = row + dirRow;
     const colToCheck: number = col + dirCol;
     // Null pointer
-    if (rowToCheck < 0 || rowToCheck >= rows) continue;
-    if (colToCheck < 0 || colToCheck >= cols) continue;
+    if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
 
     const cellToCheck: Cell = board[rowToCheck][colToCheck];
     if (cellToCheck.isFlagged) {
@@ -173,3 +169,21 @@ function countFlags(
     hasFalseNegative,
   };
 }
+
+function getBoardDimensions(board: Cell[][]) {
+  return {
+    rows: board.length,
+    cols: board[0].length,
+  };
+}
+
+function isInvalidCoordinate(
+  row: number,
+  col: number,
+  rows: number,
+  cols: number
+) {
+  return row < 0 || row >= rows || col < 0 || col >= cols;
+}
+
+//#endregion
