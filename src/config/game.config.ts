@@ -2,6 +2,7 @@ import {
   GameLevelSettingOptions,
   GameLevelsRecord,
   GameStatesRecord,
+  GameStatesType,
 } from "@app/types";
 
 export const MINE_COUNT_DIRECTIONS = [
@@ -45,3 +46,8 @@ export const GameStates: GameStatesRecord = {
   Won: "Won",
   New: "New",
 } as const;
+export const PAUSED_TIMER_GAME_STATES: GameStatesType[] = [
+  GameStates.Paused,
+  GameStates.Lost,
+  GameStates.Won,
+];

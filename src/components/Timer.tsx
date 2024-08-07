@@ -1,14 +1,28 @@
-import { timeAtom } from "@app/stores";
-import { useAtom } from "jotai";
-import { useEffect, useMemo } from "react";
+import { GameStates, PAUSED_TIMER_GAME_STATES } from "@app/config";
+import { gameStateAtom, timeAtom } from "@app/stores";
+import { useAtom, useAtomValue } from "jotai";
+import { useEffect, useMemo, useRef } from "react";
 
 export const Timer = () => {
+  const gameState = useAtomValue(gameStateAtom);
   const [seconds, setSeconds] = useAtom(timeAtom);
+  const timeIntervalRef: React.MutableRefObject<number | null> = useRef(null);
+
+  const startTimer = () => {
+    if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
+    timeIntervalRef.current = setInterval(() => {
+      setSeconds((state) => state + 1);
+    }, 1000);
+  };
+
+  const pauseTimer = () => {
+    if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
+  };
 
   useEffect(() => {
-    const interval = setInterval(() => setSeconds((state) => state + 1), 1000);
-    return () => clearInterval(interval);
-  }, []);
+    if (gameState == GameStates.Playing) startTimer();
+    if (PAUSED_TIMER_GAME_STATES.includes(gameState)) pauseTimer();
+  }, [gameState]);
 
   const render = useMemo(() => {
     var date = new Date(0);
@@ -16,5 +30,5 @@ export const Timer = () => {
     return date.toISOString().substring(11, 19);
   }, [seconds]);
 
-  return <div>{render}</div>;
+  return <div className="h-10 min-h-0 btn">{render}</div>;
 };
