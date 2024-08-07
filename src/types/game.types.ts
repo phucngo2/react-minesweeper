@@ -18,7 +18,7 @@ export interface GameLevelSetting {
 }
 export type GameLevelSettingOptions = Record<GameLevelsType, GameLevelSetting>;
 
-export type GameStatesType = "Paused" | "Won" | "Lost" | "Playing";
+export type GameStatesType = "Paused" | "Won" | "Lost" | "Playing" | "New";
 export type GameStatesRecord = EnumRecord<GameStatesType>;
 
 export interface RevealCellResult {

@@ -43,4 +43,5 @@ export const GameStates: GameStatesRecord = {
   Paused: "Paused",
   Playing: "Playing",
   Won: "Won",
+  New: "New",
 } as const;
