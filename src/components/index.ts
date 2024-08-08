@@ -8,5 +8,7 @@ export * from "./CellContent";
 export * from "./FlagCount";
 export * from "./Header";
 export * from "./Layout";
+export * from "./ModalSettings";
 export * from "./PauseOverlay";
+export * from "./SettingsGameLevels";
 export * from "./Timer";

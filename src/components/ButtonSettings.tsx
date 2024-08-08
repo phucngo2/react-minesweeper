@@ -1,10 +1,18 @@
+import { ModalSettings } from "@app/components";
+import { GameStates } from "@app/config";
+import { gameStateAtom } from "@app/stores";
+import { useAtom } from "jotai";
 import { useRef } from "react";
 
 export const ButtonSettings = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [gameState, setGameState] = useAtom(gameStateAtom);
 
   const handleClick = () => {
     dialogRef.current?.showModal();
+    if (gameState === GameStates.Playing) {
+      setGameState(GameStates.Paused);
+    }
   };
 
   return (
@@ -14,23 +22,7 @@ export const ButtonSettings = () => {
           ⚙️
         </button>
       </div>
-      <dialog ref={dialogRef} className="modal">
-        <div className="modal-box">
-          <h3 className="text-lg font-bold">Hello!</h3>
-          <p className="py-4">
-            Press ESC key or click the button below to close
-          </p>
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Close</button>
-            </form>
-          </div>
-        </div>
-        {/* Modal backdrop to handle close when click outside */}
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
+      <ModalSettings ref={dialogRef} />
     </>
   );
 };
