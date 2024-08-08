@@ -63,52 +63,22 @@ export const revealCell = (
   // Cell has mine => Game lost
   if (cell.hasMine)
     return {
-      hasMine: true,
       board,
+      hasMine: true,
+      needUpdateBoard: true,
     };
   // Flagged cell
   if (cell.isFlagged)
     return {
-      hasMine: false,
       board,
+      hasMine: false,
+      needUpdateBoard: false,
     };
   // Chording
   if (cell.isRevealed && cell.adjacentMines)
     return revealNumberAdjacentCell(board, row, col);
   // Normal cell
-  return {
-    hasMine: false,
-    board: revealCellIterative(board, row, col),
-  };
-};
-
-export const revealNumberAdjacentCell = (
-  board: Cell[][],
-  row: number,
-  col: number
-): RevealCellResult => {
-  const cell: Cell = board[row][col];
-  let countFlagsResult: CountFlagResult = countFlags(board, row, col);
-  if (cell.adjacentMines != countFlagsResult.flagCount)
-    return {
-      board,
-      hasMine: false,
-    };
-
-  const { rows, cols } = getBoardDimensions(board);
-  for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-    const rowToCheck: number = row + dirRow;
-    const colToCheck: number = col + dirCol;
-    // Null pointer
-    if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
-
-    board = revealCellIterative(board, rowToCheck, colToCheck);
-  }
-
-  return {
-    hasMine: countFlagsResult.hasFalseNegative,
-    board,
-  };
+  return revealCellIterative(board, row, col);
 };
 
 export const flagCell = (
@@ -166,13 +136,19 @@ function revealCellIterative(
   board: Cell[][],
   row: number,
   col: number
-): Cell[][] {
+): RevealCellResult {
   const { rows, cols } = getBoardDimensions(board);
   // Null pointer
-  if (isInvalidCoordinate(row, col, rows, cols)) return board;
+  if (isInvalidCoordinate(row, col, rows, cols))
+    return {
+      board,
+      needUpdateBoard: false,
+      hasMine: false,
+    };
 
   const stack: [number, number][] = [[row, col]];
   const visited = new Set<string>([getCellUniqueId(row, col)]);
+  let needUpdateBoard = false;
 
   while (stack.length > 0) {
     const [currentRow, currentCol] = stack.pop()!;
@@ -188,7 +164,10 @@ function revealCellIterative(
     )
       continue;
 
-    cell.isRevealed = true;
+    if (!cell.isRevealed) {
+      cell.isRevealed = true;
+      needUpdateBoard = true;
+    }
 
     if (cell.adjacentMines === 0) {
       for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
@@ -208,7 +187,46 @@ function revealCellIterative(
     }
   }
 
-  return board;
+  return {
+    board,
+    needUpdateBoard,
+    hasMine: false,
+  };
+}
+
+function revealNumberAdjacentCell(
+  board: Cell[][],
+  row: number,
+  col: number
+): RevealCellResult {
+  const cell: Cell = board[row][col];
+  let countFlagsResult: CountFlagResult = countFlags(board, row, col);
+  if (cell.adjacentMines != countFlagsResult.flagCount)
+    return {
+      board,
+      hasMine: false,
+      needUpdateBoard: false,
+    };
+
+  let needUpdateBoard = false;
+
+  const { rows, cols } = getBoardDimensions(board);
+  for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+    const rowToCheck: number = row + dirRow;
+    const colToCheck: number = col + dirCol;
+    // Null pointer
+    if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
+
+    const result = revealCellIterative(board, rowToCheck, colToCheck);
+    board = result.board;
+    needUpdateBoard = result.needUpdateBoard || needUpdateBoard;
+  }
+
+  return {
+    board,
+    hasMine: countFlagsResult.hasFalseNegative,
+    needUpdateBoard,
+  };
 }
 
 function countFlags(

@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const Cell: React.FC<Props> = memo(
-  ({ cell, handleCellClick, handleCellRightClick }) => {
+  ({ handleCellClick, handleCellRightClick, cell }) => {
     return (
       <button
         style={{
@@ -22,12 +22,7 @@ export const Cell: React.FC<Props> = memo(
           handleCellRightClick(cell);
         }}
       >
-        <CellContent
-          isFlagged={cell.isFlagged}
-          hasMine={cell.hasMine}
-          isRevealed={cell.isRevealed}
-          adjacentMines={cell.adjacentMines}
-        />
+        <CellContent cell={cell} />
       </button>
     );
   }

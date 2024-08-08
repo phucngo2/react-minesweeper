@@ -1,10 +1,10 @@
 import { Cell } from "@app/components";
-import { useBoard, useCellActions } from "@app/hooks";
-import { gameLevelDetailAtom } from "@app/stores";
+import { useCellActions } from "@app/hooks";
+import { boardAtom, gameLevelDetailAtom } from "@app/stores";
 import { useAtomValue } from "jotai";
 
 export const Board = () => {
-  const { board } = useBoard();
+  const board = useAtomValue(boardAtom);
   const { rows, cols } = useAtomValue(gameLevelDetailAtom);
 
   const { handleCellClick, handleCellRightClick } = useCellActions();
@@ -20,7 +20,7 @@ export const Board = () => {
     >
       {board?.flat().map((cell) => (
         <Cell
-          key={`cell-${cell.row}-${cell.col}`}
+          key={`cell-${cell.row}-${cell.col}-${cell.isFlagged}-${cell.isRevealed}`}
           cell={cell}
           handleCellClick={handleCellClick}
           handleCellRightClick={handleCellRightClick}

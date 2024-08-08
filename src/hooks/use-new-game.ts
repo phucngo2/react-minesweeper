@@ -4,8 +4,8 @@ import {
   generateBoards,
   placeMines,
 } from "@app/handlers";
-import { useBoard } from "@app/hooks";
 import {
+  boardAtom,
   flagCountAtom,
   gameLevelDetailAtom,
   gameStateAtom,
@@ -18,7 +18,7 @@ export const useNewGame = () => {
   const gameLevelDetail = useAtomValue(gameLevelDetailAtom);
   const setGameState = useSetAtom(gameStateAtom);
   const setFlagCount = useSetAtom(flagCountAtom);
-  const { setBoard } = useBoard();
+  const setBoard = useSetAtom(boardAtom);
   const setSeconds = useSetAtom(timeAtom);
 
   const newGame = (config?: GameLevelSetting) => {

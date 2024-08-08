@@ -3,7 +3,11 @@ import { Cell } from "@app/types";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 
-export const useBoard = () => {
+/**
+ * @deprecated Use boardAtom instead
+ */
+// @ts-ignore
+const useBoard = () => {
   const [board, _setBoard] = useAtom(boardAtom);
 
   const setBoard = useCallback((state: Cell[][]) => {

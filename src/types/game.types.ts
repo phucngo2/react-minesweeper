@@ -23,6 +23,7 @@ export type GameStatesRecord = EnumRecord<GameStatesType>;
 
 export interface RevealCellResult {
   hasMine: boolean;
+  needUpdateBoard: boolean;
   board: Cell[][];
 }
 export interface CountFlagResult {
