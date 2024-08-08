@@ -36,8 +36,12 @@ export const useCellActions = () => {
       if (cellDisabled) return;
 
       if (board) {
+        let flagChanged = cell.isFlagged ? 1 : -1;
+        // The value of `cell.isFlagged` will change after the `flagCell` function is called.
+        // cell.isFlagged = false
         setBoard(flagCell(board, cell.row, cell.col));
-        setFlagCount((state) => state - 1);
+        // cell.isFlagged = true
+        setFlagCount((state) => state + flagChanged);
       }
     },
     [gameState, board, setBoard, setGameState]
