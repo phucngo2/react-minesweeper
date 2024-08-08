@@ -67,14 +67,14 @@ export const revealCell = (
     };
   if (cell.isRevealed && cell.adjacentMines)
     return revealNumberAdjacentCell(board, row, col);
-  if (cell.isRevealed || cell.isFlagged)
+  if (cell.isFlagged)
     return {
       hasMine: false,
       board,
     };
   return {
     hasMine: false,
-    board: revealCellRecursive(board, row, col),
+    board: revealCellIterative(board, row, col),
   };
 };
 
@@ -98,7 +98,7 @@ export const revealNumberAdjacentCell = (
     // Null pointer
     if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
 
-    board = revealCellRecursive(board, rowToCheck, colToCheck);
+    board = revealCellIterative(board, rowToCheck, colToCheck);
   }
 
   return {
@@ -137,6 +137,7 @@ export const isBoardClear = (board: Cell[][]): boolean => {
 //#endregion
 //#region Private functions
 
+// @ts-ignore
 function revealCellRecursive(
   board: Cell[][],
   row: number,
@@ -154,6 +155,48 @@ function revealCellRecursive(
       board = revealCellRecursive(board, row + dirRow, col + dirCol);
     }
   }
+  return board;
+}
+
+function revealCellIterative(
+  board: Cell[][],
+  row: number,
+  col: number
+): Cell[][] {
+  const { rows, cols } = getBoardDimensions(board);
+  const stack: [number, number][] = [];
+  const visited: Set<string> = new Set();
+
+  // Null pointer
+  if (isInvalidCoordinate(row, col, rows, cols)) return board;
+
+  stack.push([row, col]);
+  visited.add(getCellUniqueId(row, col));
+
+  while (stack.length > 0) {
+    const [currentRow, currentCol] = stack.pop()!;
+    const cell = board[currentRow][currentCol];
+
+    if (cell.hasMine || cell.isFlagged) continue;
+
+    cell.isRevealed = true;
+
+    if (cell.adjacentMines === 0) {
+      for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+        const newRow = currentRow + dirRow;
+        const newCol = currentCol + dirCol;
+        const cellUniqueId = getCellUniqueId(newRow, newCol);
+        if (
+          !isInvalidCoordinate(newRow, newCol, rows, cols) &&
+          !visited.has(cellUniqueId)
+        ) {
+          stack.push([newRow, newCol]);
+          visited.add(cellUniqueId);
+        }
+      }
+    }
+  }
+
   return board;
 }
 
@@ -199,6 +242,10 @@ function isInvalidCoordinate(
   cols: number
 ) {
   return row < 0 || row >= rows || col < 0 || col >= cols;
+}
+
+function getCellUniqueId(row: number, col: number) {
+  return `${row}-${col}`;
 }
 
 //#endregion
