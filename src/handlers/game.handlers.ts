@@ -60,18 +60,22 @@ export const revealCell = (
   col: number
 ): RevealCellResult => {
   const cell: Cell = board[row][col];
+  // Cell has mine => Game lost
   if (cell.hasMine)
     return {
       hasMine: true,
       board,
     };
-  if (cell.isRevealed && cell.adjacentMines)
-    return revealNumberAdjacentCell(board, row, col);
+  // Flagged cell
   if (cell.isFlagged)
     return {
       hasMine: false,
       board,
     };
+  // Chording
+  if (cell.isRevealed && cell.adjacentMines)
+    return revealNumberAdjacentCell(board, row, col);
+  // Normal cell
   return {
     hasMine: false,
     board: revealCellIterative(board, row, col),
@@ -114,8 +118,8 @@ export const flagCell = (
 ): Cell[][] => {
   const cell: Cell = board[row][col];
   if (cell.isRevealed) return board;
-  const futureFlag = !cell.isFlagged;
-  cell.isFlagged = futureFlag;
+
+  cell.isFlagged = !cell.isFlagged;
   return board;
 };
 
@@ -164,20 +168,25 @@ function revealCellIterative(
   col: number
 ): Cell[][] {
   const { rows, cols } = getBoardDimensions(board);
-  const stack: [number, number][] = [];
-  const visited: Set<string> = new Set();
-
   // Null pointer
   if (isInvalidCoordinate(row, col, rows, cols)) return board;
 
-  stack.push([row, col]);
-  visited.add(getCellUniqueId(row, col));
+  const stack: [number, number][] = [[row, col]];
+  const visited = new Set<string>([getCellUniqueId(row, col)]);
 
   while (stack.length > 0) {
     const [currentRow, currentCol] = stack.pop()!;
     const cell = board[currentRow][currentCol];
 
-    if (cell.hasMine || cell.isFlagged) continue;
+    // Use `(cell.adjacentMines && cell.isRevealed)` instead of `cell.isRevealed`
+    // to handle cases where the player unflags a cell that was previously incorrectly flagged
+    // near a chording cell or an empty cell.
+    if (
+      cell.hasMine ||
+      cell.isFlagged ||
+      (cell.adjacentMines && cell.isRevealed)
+    )
+      continue;
 
     cell.isRevealed = true;
 
@@ -186,6 +195,8 @@ function revealCellIterative(
         const newRow = currentRow + dirRow;
         const newCol = currentCol + dirCol;
         const cellUniqueId = getCellUniqueId(newRow, newCol);
+
+        // Ensure the new cell is within bounds and has not been visited
         if (
           !isInvalidCoordinate(newRow, newCol, rows, cols) &&
           !visited.has(cellUniqueId)
