@@ -119,6 +119,21 @@ export const flagCell = (
   return board;
 };
 
+export const isBoardClear = (board: Cell[][]): boolean => {
+  const { rows, cols } = getBoardDimensions(board);
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const cell: Cell = board[row][col];
+      if (!cell.hasMine && !cell.isRevealed) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
 //#endregion
 //#region Private functions
 
