@@ -1,7 +1,7 @@
+import { PauseOverlay } from "@app/components";
 import { GameStates } from "@app/config";
 import { gameStateAtom } from "@app/stores";
 import { useAtomValue } from "jotai";
-import { PauseOverlay } from "./PauseOverlay";
 
 interface Props {
   children: React.ReactNode;

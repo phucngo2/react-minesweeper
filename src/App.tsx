@@ -1,6 +1,5 @@
-import { Board, Card, Layout } from "@app/components";
+import { Board, Card, Header, Layout } from "@app/components";
 import "./App.css";
-import { Header } from "./components/Header";
 
 function App() {
   return (
