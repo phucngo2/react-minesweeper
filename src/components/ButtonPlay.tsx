@@ -8,7 +8,10 @@ export const ButtonPlay = () => {
 
   return (
     <div className="tooltip tooltip-bottom" data-tip="New Game">
-      <button onClick={() => newGame} className="w-10 h-10 min-h-0 text-xl btn">
+      <button
+        onClick={() => newGame()}
+        className="w-10 h-10 min-h-0 text-xl btn"
+      >
         <ButtonPlayContent />
       </button>
     </div>
