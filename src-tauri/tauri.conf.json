@@ -1,6 +1,6 @@
 {
-  "productName": "minesweeper",
-  "version": "0.0.0",
+  "productName": "Minesweeper",
+  "version": "1.0.0",
   "identifier": "com.tauri.dev",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "minesweeper",
+        "title": "Minesweeper",
         "width": 800,
         "height": 600
       }
