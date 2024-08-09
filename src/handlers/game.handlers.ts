@@ -210,8 +210,7 @@ function revealNumberAdjacentCell(
 ): RevealCellResult {
   const cell: Cell = board[row][col];
   let countFlagsResult: CountFlagResult = countFlags(board, row, col);
-  // Trigger chording when the number of flag is >= the number of adjacent mines
-  if (countFlagsResult.flagCount < cell.adjacentMines)
+  if (cell.adjacentMines != countFlagsResult.flagCount)
     return {
       board,
       hasMine: false,
