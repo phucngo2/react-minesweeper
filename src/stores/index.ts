@@ -3,4 +3,5 @@ export * from "./flag-count.atom";
 export * from "./game-level-detail.atom";
 export * from "./game-level.atom";
 export * from "./game-state.atom";
+export * from "./is-game-lost.atom";
 export * from "./time.atom";

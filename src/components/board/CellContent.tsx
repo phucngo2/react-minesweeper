@@ -1,19 +1,19 @@
-import { GameStates, MINE_ADJECTION_CELL_WITH_COLOR } from "@app/config";
-import { gameStateAtom } from "@app/stores";
+import { MINE_ADJECTION_CELL_WITH_COLOR } from "@app/config";
+import { isGameLostAtom } from "@app/stores";
+import { Cell as ICell } from "@app/types";
 import { useAtomValue } from "jotai";
 import { memo } from "react";
-import { Cell as ICell } from "@app/types";
 
 interface Props {
   cell: ICell;
 }
 
 export const CellContent: React.FC<Props> = memo(({ cell }) => {
-  const gameState = useAtomValue(gameStateAtom);
+  const isGameLost = useAtomValue(isGameLostAtom);
   const { isFlagged, hasMine, isRevealed, adjacentMines } = cell;
 
   // Render LOST game state
-  if (gameState == GameStates.Lost) {
+  if (isGameLost) {
     // 🏳️ Wrong flags
     if (isFlagged && !hasMine) return <span>🏳️</span>;
     // 🚩 Correct flags
