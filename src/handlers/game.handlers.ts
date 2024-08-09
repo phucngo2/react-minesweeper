@@ -1,5 +1,10 @@
 import { MINE_COUNT_DIRECTIONS } from "@app/config";
-import { Cell, CountFlagResult, RevealCellResult } from "@app/types";
+import {
+  Cell,
+  CellLocation,
+  CountFlagResult,
+  RevealCellResult,
+} from "@app/types";
 
 //#region Public game functions
 
@@ -18,18 +23,22 @@ export const generateBoards = (rows: number, cols: number): Cell[][] => {
 };
 
 export const placeMines = (board: Cell[][], mineCount: number) => {
-  const { rows, cols } = getBoardDimensions(board);
-  let minesToPlace: number = mineCount;
-  while (minesToPlace > 0) {
-    const row: number = Math.floor(Math.random() * rows);
-    const col: number = Math.floor(Math.random() * cols);
-    const cell: Cell = board[row][col];
-    if (!cell.hasMine) {
-      cell.hasMine = true;
-      minesToPlace--;
-    }
-  }
-  return board;
+  return placeMinesOnBoard(board, mineCount);
+};
+
+export const placeMinesNoGuessing = (
+  board: Cell[][],
+  mineCount: number,
+  reservedCell: CellLocation
+) => {
+  const reservedCells = new Set<string>([
+    getCellUniqueId(reservedCell.row, reservedCell.col),
+    ...MINE_COUNT_DIRECTIONS.map(([dirRow, dirCol]) =>
+      getCellUniqueId(reservedCell.row + dirRow, reservedCell.col + dirCol)
+    ),
+  ]);
+
+  return placeMinesOnBoard(board, mineCount, reservedCells);
 };
 
 export const calculateAdjacentMines = (board: Cell[][]) => {
@@ -275,6 +284,30 @@ function isInvalidCoordinate(
 
 function getCellUniqueId(row: number, col: number) {
   return `${row}-${col}`;
+}
+
+function placeMinesOnBoard(
+  board: Cell[][],
+  mineCount: number,
+  reservedCells?: Set<string>
+): Cell[][] {
+  const { rows, cols } = getBoardDimensions(board);
+  let minesToPlace: number = mineCount;
+  while (minesToPlace > 0) {
+    const row: number = Math.floor(Math.random() * rows);
+    const col: number = Math.floor(Math.random() * cols);
+
+    if (reservedCells?.has(getCellUniqueId(row, col))) {
+      continue;
+    }
+
+    const cell: Cell = board[row][col];
+    if (!cell.hasMine) {
+      cell.hasMine = true;
+      minesToPlace--;
+    }
+  }
+  return board;
 }
 
 //#endregion

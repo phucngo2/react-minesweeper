@@ -16,7 +16,9 @@ export const Cell: React.FC<Props> = memo(
           opacity: cell.isRevealed ? 0.6 : 1,
         }}
         className="w-[26px] h-[26px] p-1 btn min-w-6 min-h-6"
-        onClick={() => handleCellClick(cell)}
+        onClick={() => {
+          handleCellClick(cell);
+        }}
         onContextMenu={(e) => {
           e.preventDefault();
           handleCellRightClick(cell);

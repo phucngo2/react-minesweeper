@@ -1,25 +1,40 @@
 import { forwardRef, useRef } from "react";
-import { SettingsGameLevels, SettingsGameLevelsHandle } from "@app/components";
+import {
+  SettingGameLevels,
+  SettingGameLevelsHandle,
+  SettingNoGuessing,
+  SettingNoGuessingHandle,
+} from "@app/components";
 import { useNewGame } from "@app/hooks";
 import { saveAppStorage } from "@app/utils";
 
 export const ModalSettings = forwardRef<HTMLDialogElement>((_props, ref) => {
-  const settingsGameLevelsRef = useRef<SettingsGameLevelsHandle>(null);
-  const newGame = useNewGame();
+  const settingGameLevelsRef = useRef<SettingGameLevelsHandle>(null);
+  const settingIsNoGuessingModeRef = useRef<SettingNoGuessingHandle>(null);
+  const { newGame } = useNewGame();
 
   const handleSave = () => {
-    if (settingsGameLevelsRef.current) {
+    if (settingGameLevelsRef.current && settingIsNoGuessingModeRef.current) {
       const { gameLevel, gameLevelSetting } =
-        settingsGameLevelsRef.current.handleSaveGameLevel();
-      saveAppStorage({ gameLevel });
-      newGame(gameLevelSetting);
+        settingGameLevelsRef.current.handleSaveGameLevel();
+      const isNoGuessingMode =
+        settingIsNoGuessingModeRef.current.handleSaveNoGuessing();
+
+      saveAppStorage({ gameLevel, isNoGuessingMode });
+      newGame({
+        ...gameLevelSetting,
+        isNoGuessingMode,
+      });
     }
   };
 
   return (
     <dialog ref={ref} className="modal">
       <div className="modal-box">
-        <SettingsGameLevels ref={settingsGameLevelsRef} />
+        <div className="flex flex-col gap-2">
+          <SettingGameLevels ref={settingGameLevelsRef} />
+          <SettingNoGuessing ref={settingIsNoGuessingModeRef} />
+        </div>
         <p className="mt-8 text-sm">
           The settings will take effect when you click{" "}
           <span className="underline">Save and Restart</span>

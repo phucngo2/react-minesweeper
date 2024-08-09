@@ -4,14 +4,15 @@ import { GameLevelSetting, GameLevelsType } from "@app/types";
 import { useAtom } from "jotai";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 
-export interface SettingsGameLevelsHandle {
+export interface SettingGameLevelsHandle {
   handleSaveGameLevel: () => {
     gameLevel: GameLevelsType;
     gameLevelSetting: GameLevelSetting;
   };
 }
 
-export const SettingsGameLevels = forwardRef<SettingsGameLevelsHandle>(
+// Over-engineered
+export const SettingGameLevels = forwardRef<SettingGameLevelsHandle>(
   (_props, ref) => {
     const [gameLevel, setGameLevel] = useAtom(gameLevelAtom);
     const selectedLevelRef = useRef<GameLevelsType>(gameLevel);
