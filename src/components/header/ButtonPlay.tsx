@@ -4,7 +4,7 @@ import { gameStateAtom } from "@app/stores";
 import { useAtomValue } from "jotai";
 
 export const ButtonPlay = () => {
-  const newGame = useNewGame();
+  const { newGame } = useNewGame();
 
   return (
     <div className="tooltip tooltip-bottom" data-tip="New Game">

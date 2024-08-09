@@ -9,6 +9,11 @@ export interface Cell {
   adjacentMines: number;
 }
 
+export interface CellLocation {
+  row: number;
+  col: number;
+}
+
 export type GameLevelsType = "Beginner" | "Intermediate" | "Expert";
 export type GameLevelsRecord = EnumRecord<GameLevelsType>;
 export interface GameLevelSetting {

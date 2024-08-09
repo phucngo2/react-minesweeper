@@ -1,2 +1,3 @@
 export * from "./ModalSettings";
-export * from "./SettingsGameLevels";
+export * from "./SettingGameLevels";
+export * from "./SettingNoGuessing";
