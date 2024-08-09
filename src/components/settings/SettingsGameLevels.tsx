@@ -5,7 +5,10 @@ import { useAtom } from "jotai";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 
 export interface SettingsGameLevelsHandle {
-  handleSaveGameLevel: () => GameLevelSetting;
+  handleSaveGameLevel: () => {
+    gameLevel: GameLevelsType;
+    gameLevelSetting: GameLevelSetting;
+  };
 }
 
 export const SettingsGameLevels = forwardRef<SettingsGameLevelsHandle>(
@@ -18,7 +21,10 @@ export const SettingsGameLevels = forwardRef<SettingsGameLevelsHandle>(
     const handleSaveGameLevel = () => {
       const newGameLevel = selectedLevelRef.current;
       setGameLevel(newGameLevel);
-      return GAME_LEVEL_SETTING_OPTIONS[newGameLevel];
+      return {
+        gameLevel: newGameLevel,
+        gameLevelSetting: GAME_LEVEL_SETTING_OPTIONS[newGameLevel],
+      };
     };
 
     useImperativeHandle(

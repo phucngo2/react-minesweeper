@@ -1,15 +1,19 @@
 import { forwardRef, useRef } from "react";
 import { SettingsGameLevels, SettingsGameLevelsHandle } from "@app/components";
 import { useNewGame } from "@app/hooks";
+import { saveAppStorage } from "@app/utils";
 
 export const ModalSettings = forwardRef<HTMLDialogElement>((_props, ref) => {
   const settingsGameLevelsRef = useRef<SettingsGameLevelsHandle>(null);
   const newGame = useNewGame();
 
   const handleSave = () => {
-    const gameLevelSetting =
-      settingsGameLevelsRef.current?.handleSaveGameLevel();
-    newGame(gameLevelSetting);
+    if (settingsGameLevelsRef.current) {
+      const { gameLevel, gameLevelSetting } =
+        settingsGameLevelsRef.current.handleSaveGameLevel();
+      saveAppStorage({ gameLevel });
+      newGame(gameLevelSetting);
+    }
   };
 
   return (
