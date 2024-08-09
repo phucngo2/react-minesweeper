@@ -1,7 +1,7 @@
 {
   "productName": "Minesweeper",
   "version": "1.0.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.hoshiyomi.minesweeper",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
