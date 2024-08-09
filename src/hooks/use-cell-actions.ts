@@ -1,6 +1,12 @@
 import { GameStates } from "@app/config";
 import { flagCell, isBoardClear, revealCell } from "@app/handlers";
-import { boardAtom, flagCountAtom, gameStateAtom } from "@app/stores";
+import { useNoGuessingAction } from "@app/hooks";
+import {
+  boardAtom,
+  flagCountAtom,
+  gameStateAtom,
+  isBoardPlayableAtom,
+} from "@app/stores";
 import { GameStatesType, Cell as ICell, RevealCellResult } from "@app/types";
 import { useSetAtom } from "jotai";
 import { useCallback } from "react";
@@ -10,11 +16,21 @@ export const useCellActions = () => {
   const setGameState = useSetAtom(gameStateAtom);
   const setFlagCount = useSetAtom(flagCountAtom);
 
+  const setIsBoardPlayable = useSetAtom(isBoardPlayableAtom);
+  const { handleNoGuessingModeFirstMove } = useNoGuessingAction();
+
   // Eliminate the use of atom values to ensure that functions do not
   // depend on them and do not re-generate when those values change.
   // This approach prevents redundant re-renders.
   const handleCellClick = useCallback(
     (cell: ICell) => {
+      setIsBoardPlayable((isBoardPlayable) => {
+        if (!isBoardPlayable) {
+          handleNoGuessingModeFirstMove(cell);
+          return true;
+        }
+        return isBoardPlayable;
+      });
       setGameState((gameState) => {
         if (gameState !== GameStates.Playing || cell.isFlagged)
           return gameState;
@@ -41,7 +57,7 @@ export const useCellActions = () => {
         return newGameState;
       });
     },
-    [setBoard, setGameState]
+    [setBoard, setGameState, setIsBoardPlayable]
   );
 
   const handleCellRightClick = useCallback(

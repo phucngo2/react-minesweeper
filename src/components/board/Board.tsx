@@ -1,5 +1,5 @@
 import { Cell } from "@app/components";
-import { useCellActions, useNoGuessingAction } from "@app/hooks";
+import { useCellActions } from "@app/hooks";
 import { boardAtom, gameLevelDetailAtom } from "@app/stores";
 import { useAtomValue } from "jotai";
 
@@ -8,7 +8,6 @@ export const Board = () => {
   const { rows, cols } = useAtomValue(gameLevelDetailAtom);
 
   const { handleCellClick, handleCellRightClick } = useCellActions();
-  const { handleNoGuessingModeFirstMove } = useNoGuessingAction();
 
   return (
     <div
@@ -27,7 +26,6 @@ export const Board = () => {
           cell={cell}
           handleCellClick={handleCellClick}
           handleCellRightClick={handleCellRightClick}
-          handleNoGuessingModeFirstMove={handleNoGuessingModeFirstMove}
         />
       ))}
     </div>
