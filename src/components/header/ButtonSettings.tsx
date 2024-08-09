@@ -1,16 +1,17 @@
 import { ModalSettings } from "@app/components";
 import { GameStates } from "@app/config";
-import { gameStateAtom } from "@app/stores";
-import { useAtom } from "jotai";
+import { gameStateAtom, isGamePlayingAtom } from "@app/stores";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useRef } from "react";
 
 export const ButtonSettings = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [gameState, setGameState] = useAtom(gameStateAtom);
+  const setGameState = useSetAtom(gameStateAtom);
+  const isPlaying = useAtomValue(isGamePlayingAtom);
 
   const handleClick = () => {
     dialogRef.current?.showModal();
-    if (gameState === GameStates.Playing) {
+    if (isPlaying) {
       setGameState(GameStates.Paused);
     }
   };

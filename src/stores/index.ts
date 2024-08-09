@@ -4,4 +4,7 @@ export * from "./game-level-detail.atom";
 export * from "./game-level.atom";
 export * from "./game-state.atom";
 export * from "./is-game-lost.atom";
+export * from "./is-game-new.atom";
+export * from "./is-game-paused.atom";
+export * from "./is-game-playing.atom";
 export * from "./time.atom";

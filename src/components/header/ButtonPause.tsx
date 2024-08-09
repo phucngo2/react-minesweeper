@@ -1,11 +1,15 @@
 import { GameStates } from "@app/config";
-import { gameStateAtom } from "@app/stores";
-import { useAtom } from "jotai";
+import {
+  gameStateAtom,
+  isGamePausedAtom,
+  isGamePlayingAtom,
+} from "@app/stores";
+import { useAtomValue, useSetAtom } from "jotai";
 
 export const ButtonPause = () => {
-  const [gameState, setGameState] = useAtom(gameStateAtom);
-  const isPlaying = gameState === GameStates.Playing;
-  const isPaused = gameState === GameStates.Paused;
+  const setGameState = useSetAtom(gameStateAtom);
+  const isPlaying = useAtomValue(isGamePlayingAtom);
+  const isPaused = useAtomValue(isGamePausedAtom);
 
   const handleClick = () => {
     if (isPlaying) {

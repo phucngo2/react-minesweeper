@@ -1,6 +1,5 @@
 import { PauseOverlay } from "@app/components";
-import { GameStates } from "@app/config";
-import { gameStateAtom } from "@app/stores";
+import { isGameNewAtom } from "@app/stores";
 import { useAtomValue } from "jotai";
 
 interface Props {
@@ -8,8 +7,8 @@ interface Props {
 }
 
 export const Card: React.FC<Props> = ({ children }) => {
-  const gameState = useAtomValue(gameStateAtom);
-  if (gameState == GameStates.New) return <></>;
+  const isNewGame = useAtomValue(isGameNewAtom);
+  if (isNewGame) return <></>;
   return (
     <div className="relative p-3 bg-neutral card w-fit">
       {children}
