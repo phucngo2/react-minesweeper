@@ -20,7 +20,9 @@ export const Board = () => {
     >
       {board?.flat().map((cell) => (
         <Cell
+          // The cell should re-render when these properties change.
           key={`cell-${cell.row}-${cell.col}-${cell.isFlagged}-${cell.isRevealed}`}
+          // NOTE: The reference to the `cell` object and these two functions should remain the same.
           cell={cell}
           handleCellClick={handleCellClick}
           handleCellRightClick={handleCellRightClick}

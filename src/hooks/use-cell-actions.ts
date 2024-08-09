@@ -10,6 +10,9 @@ export const useCellActions = () => {
   const setGameState = useSetAtom(gameStateAtom);
   const setFlagCount = useSetAtom(flagCountAtom);
 
+  // Eliminate the use of atom values to ensure that functions do not
+  // depend on them and do not re-generate when those values change.
+  // This approach prevents redundant re-renders.
   const handleCellClick = useCallback(
     (cell: ICell) => {
       setGameState((gameState) => {
@@ -18,8 +21,6 @@ export const useCellActions = () => {
 
         let newGameState: GameStatesType = gameState;
 
-        // Use this call to prevent the handleCellClick to depend on the board of useAtom,
-        // which cause this function to re-create whenever board updated
         setBoard((board) => {
           const revealCellResult: RevealCellResult = revealCell(
             board!,
