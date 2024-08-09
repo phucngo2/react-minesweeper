@@ -66,7 +66,7 @@ export const useNewGame = () => {
         !isNoGuessing
       );
     },
-    [createBoard, gameLevelDetail, startGame]
+    [createBoard, gameLevelDetail, startGame, isNoGuessingMode]
   );
 
   return { newGame };
