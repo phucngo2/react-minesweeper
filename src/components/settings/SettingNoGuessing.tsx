@@ -34,7 +34,7 @@ export const SettingNoGuessing = forwardRef<SettingNoGuessingHandle>(
 
     return (
       <label className="form-control">
-        <div className="label">No Guessing Mode</div>
+        <div className="label">First Move No Guessing</div>
         <input
           type="checkbox"
           className="toggle toggle-primary"
