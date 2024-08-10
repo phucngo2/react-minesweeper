@@ -45,10 +45,10 @@ export const useCellActions = () => {
           );
           if (revealCellResult.hasMine) {
             newGameState = GameStates.Lost;
-            return board;
           }
-          if (isBoardClear(revealCellResult.board))
+          if (isBoardClear(revealCellResult.board)) {
             newGameState = GameStates.Won;
+          }
           if (revealCellResult.needUpdateBoard)
             return [...revealCellResult.board];
           return board;
