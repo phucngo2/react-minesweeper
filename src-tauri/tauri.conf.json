@@ -1,6 +1,6 @@
 {
   "productName": "Minesweeper",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "identifier": "com.hoshiyomi.minesweeper",
   "build": {
     "beforeDevCommand": "npm run dev",
