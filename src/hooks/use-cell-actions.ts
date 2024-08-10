@@ -57,7 +57,7 @@ export const useCellActions = () => {
         return newGameState;
       });
     },
-    [setBoard, setGameState, setIsBoardPlayable]
+    [setBoard, setGameState, setIsBoardPlayable, handleNoGuessingModeFirstMove]
   );
 
   const handleCellRightClick = useCallback(

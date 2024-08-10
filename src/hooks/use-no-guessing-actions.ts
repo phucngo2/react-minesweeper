@@ -10,11 +10,11 @@ export const useNoGuessingAction = () => {
 
   const handleNoGuessingModeFirstMove = useCallback(
     (cell: ICell) => {
-      setBoard((board) => [
-        ...calculateAdjacentMines(
+      setBoard((board) =>
+        calculateAdjacentMines(
           placeMinesNoGuessing(board!, gameLevelDetail.mineCount, cell)
-        ),
-      ]);
+        )
+      );
     },
     [setBoard, gameLevelDetail]
   );
