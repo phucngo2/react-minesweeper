@@ -4,6 +4,7 @@ import {
   flagCell,
   generateBoards,
   isBoardClear,
+  markCell,
   placeMines,
   revealCell,
 } from "@app/handlers";
@@ -103,6 +104,20 @@ export const toggleFlagAtom = atom(
     const board = get(boardAtom);
     if (!board || get(gameStateAtom) !== GameStates.Playing) return;
     const next = flagCell(board, row, col, get(useQuestionMarksAtom));
+    if (next !== board) set(boardAtom, next);
+  }
+);
+
+export const markCellAtom = atom(
+  null,
+  (
+    get,
+    set,
+    { row, col, mark }: CellLocation & { mark: "flag" | "question" }
+  ) => {
+    const board = get(boardAtom);
+    if (!board || get(gameStateAtom) !== GameStates.Playing) return;
+    const next = markCell(board, row, col, mark);
     if (next !== board) set(boardAtom, next);
   }
 );

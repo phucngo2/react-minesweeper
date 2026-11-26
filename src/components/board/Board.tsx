@@ -1,7 +1,7 @@
 import { Cell, CellHandlers } from "@app/components";
 import { LONG_PRESS_MS } from "@app/config";
 import { useCellActions } from "@app/hooks";
-import { boardAtom, isFlagModeAtom } from "@app/stores";
+import { boardAtom, tapModeAtom } from "@app/stores";
 import { CellLocation } from "@app/types";
 import { useAtomValue } from "jotai";
 import { useMemo, useRef } from "react";
@@ -15,12 +15,12 @@ const getCellLocation = (el: HTMLElement): CellLocation => ({
 
 export const Board = () => {
   const board = useAtomValue(boardAtom);
-  const isFlagMode = useAtomValue(isFlagModeAtom);
-  const { revealCell, toggleFlag } = useCellActions();
+  const tapMode = useAtomValue(tapModeAtom);
+  const { revealCell, toggleFlag, markCell } = useCellActions();
 
   // Latest values for the stable handlers below
-  const latestRef = useRef({ board, isFlagMode });
-  latestRef.current = { board, isFlagMode };
+  const latestRef = useRef({ board, tapMode });
+  latestRef.current = { board, tapMode };
 
   const pressRef = useRef({
     timer: 0,
@@ -36,13 +36,14 @@ export const Board = () => {
       !!latestRef.current.board?.[row][col].isRevealed;
 
     const primaryAction = (location: CellLocation) => {
-      if (latestRef.current.isFlagMode && !isRevealed(location))
-        toggleFlag(location);
+      const { tapMode } = latestRef.current;
+      if (tapMode !== "dig" && !isRevealed(location))
+        markCell({ ...location, mark: tapMode });
       else revealCell(location);
     };
 
     const secondaryAction = (location: CellLocation) => {
-      if (latestRef.current.isFlagMode) revealCell(location);
+      if (latestRef.current.tapMode !== "dig") revealCell(location);
       else toggleFlag(location);
     };
 
@@ -108,7 +109,7 @@ export const Board = () => {
       },
       onAuxClick: (e) => e.preventDefault(),
     };
-  }, [revealCell, toggleFlag]);
+  }, [revealCell, toggleFlag, markCell]);
 
   if (!board) return null;
   const rows = board.length;

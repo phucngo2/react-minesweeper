@@ -72,7 +72,7 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <div role="tablist" className="mb-4 tabs tabs-boxed">
+      <div role="tablist" className="mb-2 tabs tabs-boxed">
         {SETTINGS_TABS.map((item) => (
           <button
             key={item.id}
@@ -120,7 +120,7 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
           </p>
         </>
       )}
-      <div className="mt-3 modal-action">
+      <div className="mt-6 modal-action">
         <div className="flex flex-row items-center justify-end gap-4">
           <button className="h-10 min-h-10 btn" onClick={onClose}>
             Close

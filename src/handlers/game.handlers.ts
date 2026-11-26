@@ -107,6 +107,26 @@ export const flagCell = (
   return draft.next;
 };
 
+/** Toggles a single mark (no cycling); placing one mark clears the other. */
+export const markCell = (
+  board: Cell[][],
+  row: number,
+  col: number,
+  mark: "flag" | "question"
+): Cell[][] => {
+  const cell = board[row][col];
+  if (cell.isRevealed) return board;
+
+  const patch: Partial<Cell> =
+    mark === "flag"
+      ? { isFlagged: !cell.isFlagged, isQuestioned: false }
+      : { isQuestioned: !cell.isQuestioned, isFlagged: false };
+
+  const draft = createDraft(board);
+  draft.update(row, col, patch);
+  return draft.next;
+};
+
 export const isBoardClear = (board: Cell[][]): boolean =>
   board.every((rowCells) =>
     rowCells.every((cell) => cell.hasMine || cell.isRevealed)

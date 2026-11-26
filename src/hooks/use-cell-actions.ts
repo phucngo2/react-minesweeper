@@ -1,8 +1,9 @@
-import { revealCellAtom, toggleFlagAtom } from "@app/stores";
+import { markCellAtom, revealCellAtom, toggleFlagAtom } from "@app/stores";
 import { useSetAtom } from "jotai";
 
 export const useCellActions = () => {
   const revealCell = useSetAtom(revealCellAtom);
   const toggleFlag = useSetAtom(toggleFlagAtom);
-  return { revealCell, toggleFlag };
+  const markCell = useSetAtom(markCellAtom);
+  return { revealCell, toggleFlag, markCell };
 };

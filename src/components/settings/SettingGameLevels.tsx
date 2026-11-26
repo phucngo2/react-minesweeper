@@ -1,5 +1,8 @@
 import { CUSTOM_LEVEL_LIMITS, GameLevels } from "@app/config";
 import { GameLevelSetting, GameLevelsType } from "@app/types";
+import { clamp, normalizeCustomLevel } from "@app/utils";
+
+const BLOCKED_KEYS = new Set(["-", "+", "e", "E", ".", ","]);
 
 interface Props {
   level: GameLevelsType;
@@ -36,7 +39,10 @@ export const SettingGameLevels: React.FC<Props> = ({
       key: "mineCount",
       label: "Mines",
       min: minMines,
-      max: maxMines(customLevel.rows, customLevel.cols),
+      max: maxMines(
+        clamp(customLevel.rows, minRows, maxRows),
+        clamp(customLevel.cols, minCols, maxCols)
+      ),
     },
   ];
 
@@ -70,12 +76,20 @@ export const SettingGameLevels: React.FC<Props> = ({
                 className="w-full input input-bordered input-sm"
                 min={min}
                 max={max}
-                value={customLevel[key]}
-                onChange={(e) =>
+                // 0 means "empty" so the field can be cleared while typing
+                value={customLevel[key] || ""}
+                onKeyDown={(e) => {
+                  if (BLOCKED_KEYS.has(e.key)) e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "");
                   onCustomLevelChange({
                     ...customLevel,
-                    [key]: Number(e.target.value),
-                  })
+                    [key]: digits ? Math.min(Number(digits), max) : 0,
+                  });
+                }}
+                onBlur={() =>
+                  onCustomLevelChange(normalizeCustomLevel(customLevel))
                 }
               />
             </label>
