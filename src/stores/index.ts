@@ -14,5 +14,6 @@ export * from "./is-game-playing.atom";
 export * from "./is-no-guessing-mode.atom";
 export * from "./is-timer-running.atom";
 export * from "./stats.atom";
+export * from "./theme.atom";
 export * from "./time.atom";
 export * from "./use-question-marks.atom";

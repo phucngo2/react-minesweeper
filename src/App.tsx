@@ -5,10 +5,11 @@ import {
   Header,
   Layout,
 } from "@app/components";
-import { useGameShortcuts } from "@app/hooks";
+import { useGameShortcuts, useTheme } from "@app/hooks";
 import "./App.css";
 
 function App() {
+  useTheme();
   useGameShortcuts();
 
   return (
