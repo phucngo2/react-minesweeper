@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef } from "react";
 export const Timer = () => {
   const gameState = useAtomValue(gameStateAtom);
   const [seconds, setSeconds] = useAtom(timeAtom);
-  const timeIntervalRef: React.MutableRefObject<number | null> = useRef(null);
+  const timeIntervalRef = useRef<number | null>(null);
 
   const startTimer = () => {
     if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);

@@ -1,4 +1,4 @@
-import { forwardRef, useRef } from "react";
+import { Ref, useRef } from "react";
 import {
   SettingGameLevels,
   SettingGameLevelsHandle,
@@ -8,7 +8,7 @@ import {
 import { useNewGame } from "@app/hooks";
 import { saveAppStorage } from "@app/utils";
 
-export const ModalSettings = forwardRef<HTMLDialogElement>((_props, ref) => {
+export const ModalSettings = ({ ref }: { ref?: Ref<HTMLDialogElement> }) => {
   const settingGameLevelsRef = useRef<SettingGameLevelsHandle>(null);
   const settingIsNoGuessingModeRef = useRef<SettingNoGuessingHandle>(null);
   const { newGame } = useNewGame();
@@ -60,4 +60,4 @@ export const ModalSettings = forwardRef<HTMLDialogElement>((_props, ref) => {
       </form>
     </dialog>
   );
-});
+};
