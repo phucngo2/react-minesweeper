@@ -28,14 +28,22 @@ const getLabel = (cell: ICell) => {
   return cell.adjacentMines ? `${cell.adjacentMines}` : "Empty";
 };
 
+const BASE_CLASS =
+  "w-[26px] h-[26px] p-1 btn min-w-6 min-h-6 border-0 shadow-none";
+
+const getClassName = (cell: ICell) => {
+  if (cell.isExploded) return `${BASE_CLASS} bg-error hover:bg-error`;
+  if (cell.isRevealed) return `${BASE_CLASS} bg-base-100 hover:bg-base-100`;
+  return `${BASE_CLASS} bg-primary/60 hover:bg-primary/80`;
+};
+
 // `handlers` is a stable object from <Board />, so this only re-renders when
 // its own (immutable) cell object changes.
 export const Cell = memo(({ cell, handlers }: Props) => (
   <button
     type="button"
     {...handlers}
-    style={{ opacity: cell.isRevealed ? 0.6 : 1 }}
-    className="w-[26px] h-[26px] p-1 btn min-w-6 min-h-6"
+    className={getClassName(cell)}
     data-row={cell.row}
     data-col={cell.col}
     aria-label={`Row ${cell.row + 1}, column ${cell.col + 1}: ${getLabel(cell)}`}

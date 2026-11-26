@@ -7,7 +7,7 @@ export const PauseOverlay = () => {
   const gameState = useAtomValue(gameStateAtom);
   if (gameState != GameStates.Paused) return <></>;
   return (
-    <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full p-4 z-5 bg-neutral card">
+    <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full p-4 z-5 bg-base-300 card">
       <img src={ImgNun} className="rounded-lg w-full max-w-[240px]" />
       <div className="mt-2 font-semibold">🦌 NUN!</div>
     </div>
