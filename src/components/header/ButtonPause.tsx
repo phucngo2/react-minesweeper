@@ -13,13 +13,13 @@ export const ButtonPause = () => {
   return (
     <div
       className="tooltip tooltip-bottom"
-      data-tip={isPlaying ? "Pause (P)" : "Resume (P)"}
+      data-tip={isPaused ? "Resume (P)" : "Pause (P)"}
     >
       <button
         onClick={togglePause}
         disabled={!isPlaying && !isPaused}
         className="w-10 h-10 min-h-0 text-xl btn"
-        aria-label={isPlaying ? "Pause" : "Resume"}
+        aria-label={isPaused ? "Resume" : "Pause"}
       >
         {isPaused ? "▶️" : "⏸️"}
       </button>

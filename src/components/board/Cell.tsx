@@ -29,13 +29,21 @@ const getLabel = (cell: ICell) => {
 };
 
 const BASE_CLASS =
-  "w-[26px] h-[26px] p-1 btn min-w-6 min-h-6 border-0 shadow-none";
+  "cell w-[26px] h-[26px] p-1 btn min-w-6 min-h-6 border-0";
 
-const getClassName = (cell: ICell) => {
-  if (cell.isExploded) return `${BASE_CLASS} bg-error hover:bg-error`;
-  if (cell.isRevealed) return `${BASE_CLASS} bg-base-100 hover:bg-base-100`;
-  return `${BASE_CLASS} bg-primary/60 hover:bg-primary/80`;
+const getStateClass = (cell: ICell) => {
+  if (cell.isExploded) return "cell-exploded";
+  if (cell.isRevealed) {
+    if (cell.isFlagged) return "cell-wrong-flag";
+    if (cell.hasMine) return "cell-mine";
+    return "cell-revealed";
+  }
+  if (cell.isFlagged) return "cell-flagged";
+  if (cell.isQuestioned) return "cell-questioned";
+  return "cell-hidden";
 };
+
+const getClassName = (cell: ICell) => `${BASE_CLASS} ${getStateClass(cell)}`;
 
 // `handlers` is a stable object from <Board />, so this only re-renders when
 // its own (immutable) cell object changes.

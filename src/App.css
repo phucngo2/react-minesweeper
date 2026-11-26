@@ -22,4 +22,62 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none;
   }
+
+  /* Doubled class beats daisyUI's `.btn:hover` so states keep their colors */
+  .cell.cell {
+    font-weight: 800;
+    background-color: oklch(var(--b1));
+    transition:
+      filter 0.15s,
+      transform 0.1s;
+  }
+
+  /* Raised: gradient + top highlight + bottom shade */
+  .cell.cell-hidden,
+  .cell.cell-flagged,
+  .cell.cell-questioned {
+    background-image: linear-gradient(
+      to bottom,
+      oklch(var(--cell-tint) / 0.85),
+      oklch(var(--cell-tint) / 0.6)
+    );
+    box-shadow:
+      inset 0 1px 0 oklch(100% 0 0 / 0.25),
+      inset 0 -2px 0 oklch(0% 0 0 / 0.18);
+  }
+  .cell.cell-hidden {
+    --cell-tint: var(--p);
+  }
+  .cell.cell-flagged {
+    --cell-tint: var(--s);
+  }
+  .cell.cell-questioned {
+    --cell-tint: var(--a);
+  }
+
+  @media (hover: hover) {
+    .cell.cell-hidden:hover,
+    .cell.cell-flagged:hover,
+    .cell.cell-questioned:hover {
+      filter: brightness(1.12);
+    }
+  }
+  .cell.cell-hidden:active {
+    transform: scale(0.92);
+  }
+
+  /* Sunken */
+  .cell.cell-revealed {
+    box-shadow: inset 0 1px 3px oklch(0% 0 0 / 0.18);
+  }
+  .cell.cell-mine {
+    background-color: oklch(var(--er) / 0.25);
+  }
+  .cell.cell-wrong-flag {
+    background-color: oklch(var(--wa) / 0.35);
+  }
+  .cell.cell-exploded {
+    background-color: oklch(var(--er));
+    box-shadow: 0 0 0 2px oklch(var(--er) / 0.45);
+  }
 }
