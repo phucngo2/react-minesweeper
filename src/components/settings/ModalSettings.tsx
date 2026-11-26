@@ -120,20 +120,18 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
           </p>
         </>
       )}
-      <div className="mt-6 modal-action">
-        <div className="flex flex-row items-center justify-end gap-4">
-          <button className="h-10 min-h-10 btn" onClick={onClose}>
-            Close
+      <div className="modal-action">
+        <button className="h-10 min-h-10 btn" onClick={onClose}>
+          Close
+        </button>
+        {tab === "game" && (
+          <button
+            onClick={handleSave}
+            className="h-10 btn btn-primary min-h-10"
+          >
+            Save and Restart
           </button>
-          {tab === "game" && (
-            <button
-              onClick={handleSave}
-              className="h-10 btn btn-secondary min-h-10"
-            >
-              Save and Restart
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </>
   );

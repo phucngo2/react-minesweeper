@@ -13,15 +13,16 @@ import { useAtomValue } from "jotai";
 export const Header = () => {
   const isNewGame = useAtomValue(isGameNewAtom);
   return (
-    <div className="flex flex-row flex-wrap items-center justify-between gap-3 font-semibold">
-      <div className="flex flex-row items-center gap-2.5 card bg-base-300 shadow-md px-3 p-2">
+    // z-10: frosted panels create stacking contexts, so lift the header (and its tooltips) above the board
+    <div className="relative z-10 flex flex-row flex-wrap items-center justify-between gap-3 font-semibold">
+      <div className="flex flex-row items-center gap-2.5 card card-header frosted px-3 p-2">
         <ButtonSettings />
         <ButtonStats />
         <ButtonPlay />
         {!isNewGame && <FlagCount />}
       </div>
       {!isNewGame && (
-        <div className="flex flex-row items-center gap-2.5 card bg-base-300 shadow-md px-3 p-2">
+        <div className="flex flex-row items-center gap-2.5 card card-header frosted px-3 p-2">
           <Timer />
           <ButtonPause />
           <ButtonFlagMode />
