@@ -7,10 +7,11 @@ export const ButtonPlay = () => {
   const { newGame } = useNewGame();
 
   return (
-    <div className="tooltip tooltip-bottom" data-tip="New Game">
+    <div className="tooltip tooltip-bottom" data-tip="New Game (F2)">
       <button
         onClick={() => newGame()}
         className="w-10 h-10 min-h-0 text-xl btn"
+        aria-label="New game"
       >
         <ButtonPlayContent />
       </button>

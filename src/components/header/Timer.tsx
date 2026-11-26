@@ -1,38 +1,23 @@
-import { GameStates, PAUSED_TIMER_GAME_STATES } from "@app/config";
-import { gameStateAtom, timeAtom } from "@app/stores";
+import { isTimerRunningAtom, timeAtom } from "@app/stores";
+import { formatTime } from "@app/utils";
 import { useAtom, useAtomValue } from "jotai";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect } from "react";
 
 export const Timer = () => {
-  const gameState = useAtomValue(gameStateAtom);
+  const isRunning = useAtomValue(isTimerRunningAtom);
   const [seconds, setSeconds] = useAtom(timeAtom);
-  const timeIntervalRef: React.MutableRefObject<number | null> = useRef(null);
-
-  const startTimer = () => {
-    if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
-    timeIntervalRef.current = setInterval(() => {
-      setSeconds((state) => state + 1);
-    }, 1000);
-  };
-
-  const pauseTimer = () => {
-    if (timeIntervalRef.current) clearInterval(timeIntervalRef.current);
-  };
 
   useEffect(() => {
-    if (gameState == GameStates.Playing) startTimer();
-    if (PAUSED_TIMER_GAME_STATES.includes(gameState)) pauseTimer();
-  }, [gameState]);
-
-  const render = useMemo(() => {
-    var date = new Date(0);
-    date.setSeconds(seconds);
-    return date.toISOString().substring(11, 19);
-  }, [seconds]);
+    if (!isRunning) return;
+    const interval = window.setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(interval);
+  }, [isRunning, setSeconds]);
 
   return (
     <div className="tooltip tooltip-bottom" data-tip="Time waits for no one!">
-      <div className="h-10 min-h-0 text-base btn">{render}</div>
+      <div className="h-10 min-h-0 text-base tabular-nums btn" role="timer">
+        {formatTime(seconds)}
+      </div>
     </div>
   );
 };

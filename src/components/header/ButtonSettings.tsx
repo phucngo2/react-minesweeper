@@ -1,29 +1,29 @@
 import { ModalSettings } from "@app/components";
-import { GameStates } from "@app/config";
-import { gameStateAtom, isGamePlayingAtom } from "@app/stores";
-import { useAtomValue, useSetAtom } from "jotai";
-import { useRef } from "react";
+import { pauseGameAtom } from "@app/stores";
+import { useSetAtom } from "jotai";
+import { useState } from "react";
 
 export const ButtonSettings = () => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const setGameState = useSetAtom(gameStateAtom);
-  const isPlaying = useAtomValue(isGamePlayingAtom);
+  const [isOpen, setIsOpen] = useState(false);
+  const pauseGame = useSetAtom(pauseGameAtom);
 
   const handleClick = () => {
-    dialogRef.current?.showModal();
-    if (isPlaying) {
-      setGameState(GameStates.Paused);
-    }
+    pauseGame();
+    setIsOpen(true);
   };
 
   return (
     <>
       <div className="tooltip tooltip-bottom" data-tip="Settings">
-        <button onClick={handleClick} className="w-10 h-10 min-h-0 text-xl btn">
+        <button
+          onClick={handleClick}
+          className="w-10 h-10 min-h-0 text-xl btn"
+          aria-label="Settings"
+        >
           ⚙️
         </button>
       </div>
-      <ModalSettings ref={dialogRef} />
+      <ModalSettings open={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 };

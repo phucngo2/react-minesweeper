@@ -1,32 +1,27 @@
-import { GameStates } from "@app/config";
 import {
-  gameStateAtom,
   isGamePausedAtom,
   isGamePlayingAtom,
+  togglePauseAtom,
 } from "@app/stores";
 import { useAtomValue, useSetAtom } from "jotai";
 
 export const ButtonPause = () => {
-  const setGameState = useSetAtom(gameStateAtom);
+  const togglePause = useSetAtom(togglePauseAtom);
   const isPlaying = useAtomValue(isGamePlayingAtom);
   const isPaused = useAtomValue(isGamePausedAtom);
-
-  const handleClick = () => {
-    if (isPlaying) {
-      setGameState(GameStates.Paused);
-    }
-    if (isPaused) {
-      setGameState(GameStates.Playing);
-    }
-  };
 
   return (
     <div
       className="tooltip tooltip-bottom"
-      data-tip={isPlaying ? "Pause" : "Resume"}
+      data-tip={isPaused ? "Resume (P)" : "Pause (P)"}
     >
-      <button onClick={handleClick} className="w-10 h-10 min-h-0 text-xl btn">
-        {isPlaying ? "⏸️" : "▶️"}
+      <button
+        onClick={togglePause}
+        disabled={!isPlaying && !isPaused}
+        className="w-10 h-10 min-h-0 text-xl btn"
+        aria-label={isPaused ? "Resume" : "Pause"}
+      >
+        {isPaused ? "▶️" : "⏸️"}
       </button>
     </div>
   );

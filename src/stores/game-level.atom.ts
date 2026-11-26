@@ -5,7 +5,7 @@ import { atom } from "jotai";
 
 const getInitialValue = (): GameLevelsType => {
   const appStorage = retrieveAppStorage();
-  if (appStorage?.gameLevel) {
+  if (appStorage?.gameLevel && appStorage.gameLevel in GameLevels) {
     return appStorage.gameLevel;
   }
   return GameLevels.Beginner;

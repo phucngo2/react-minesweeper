@@ -21,9 +21,8 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Import settings */
-    "baseUrl": ".",
     "paths": {
-      "@app/*": ["src/*"]
+      "@app/*": ["./src/*"]
     }
   },
   "include": ["src"],

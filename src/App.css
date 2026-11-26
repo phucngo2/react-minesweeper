@@ -3,14 +3,181 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    Inter, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
+  letter-spacing: -0.01em;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+@layer components {
+  /*
+   * Theme-proportional concentric corners: outer = inner * (1 + padding / cap),
+   * where inner is the theme's button radius capped at half the control height.
+   * Pill themes get exact concentric pills; sharp themes stay sharp. Never below
+   * the theme's own box radius.
+   */
+  .card.card-header {
+    /* 2.5rem controls (cap 1.25rem) + 0.5rem padding */
+    border-radius: max(
+      var(--rounded-box, 1rem),
+      calc(min(var(--rounded-btn, 0.5rem), 1.25rem) * 1.4)
+    );
+  }
+  .card.card-board {
+    /* 26px cells (cap 13px) + 0.75rem padding */
+    border-radius: max(
+      var(--rounded-box, 1rem),
+      calc(min(var(--rounded-btn, 0.5rem), 13px) * 1.92)
+    );
+  }
+
+  /* Header controls: tinted with the text color so they stand out on the frosted panel in any theme */
+  .card-header > .tooltip > .btn {
+    color: oklch(var(--bc));
+    background-color: oklch(var(--bc) / 0.12);
+    border-color: transparent;
+    box-shadow: none;
+  }
+  @media (hover: hover) {
+    .card-header > .tooltip > .btn:not(:disabled):hover {
+      background-color: oklch(var(--bc) / 0.2);
+    }
+  }
+  .card-header > .tooltip > .btn:disabled {
+    background-color: oklch(var(--bc) / 0.05);
+  }
+  /* 2rem tabs (cap 1rem) + 0.25rem padding */
+  .tabs.tabs-boxed {
+    border-radius: calc(min(var(--rounded-btn, 0.5rem), 1rem) * 1.25);
+    /* base-200 vanishes on the translucent modal in light themes */
+    background-color: oklch(var(--bc) / 0.08);
+  }
+  /* 2.5rem controls (cap 1.25rem) + 1.5rem padding */
+  .modal-box.modal-box {
+    border-radius: max(
+      var(--rounded-box, 1rem),
+      calc(min(var(--rounded-btn, 0.5rem), 1.25rem) * 2.2)
+    );
+    background-color: oklch(var(--b1) / 0.82);
+    backdrop-filter: saturate(180%) blur(30px);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    border: 1px solid oklch(var(--bc) / 0.08);
+    box-shadow:
+      0 2px 6px oklch(0% 0 0 / 0.08),
+      0 24px 60px oklch(0% 0 0 / 0.22);
+  }
+  .modal[open] {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  /* Soft wallpaper-like glow so frosted panels have something to blur */
+  .app-background {
+    background:
+      radial-gradient(at 15% 10%, oklch(var(--p) / 0.18), transparent 50%),
+      radial-gradient(at 85% 90%, oklch(var(--s) / 0.16), transparent 50%),
+      oklch(var(--b1));
+  }
+
+  /* Frosted-glass panel, like macOS/iOS materials (not daisyUI's `.glass`) */
+  .frosted {
+    background-color: oklch(var(--b3) / 0.7);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid oklch(var(--bc) / 0.08);
+    box-shadow:
+      0 1px 2px oklch(0% 0 0 / 0.06),
+      0 8px 24px oklch(0% 0 0 / 0.1);
+  }
+
+  /* Apple-like continuous corners: between round (1) and squircle (2) */
+  @supports (corner-shape: superellipse(1.4)) {
+    .btn,
+    .card,
+    .modal-box,
+    .tabs-boxed,
+    .tab,
+    .input,
+    .select,
+    .badge,
+    .stat,
+    .rounded-lg,
+    .rounded-box {
+      corner-shape: superellipse(1.4);
+    }
+  }
+
+  .board {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Doubled class beats daisyUI's `.btn:hover` so states keep their colors */
+  .cell.cell {
+    font-weight: 800;
+    background-color: oklch(var(--b1));
+    transition:
+      filter 0.15s,
+      transform 0.1s;
+  }
+
+  /* Raised: gradient + top highlight + bottom shade */
+  .cell.cell-hidden,
+  .cell.cell-flagged,
+  .cell.cell-questioned {
+    background-image: linear-gradient(
+      to bottom,
+      oklch(var(--cell-tint) / 0.85),
+      oklch(var(--cell-tint) / 0.6)
+    );
+    box-shadow:
+      inset 0 1px 0 oklch(100% 0 0 / 0.25),
+      inset 0 -2px 0 oklch(0% 0 0 / 0.18);
+  }
+  .cell.cell-hidden {
+    --cell-tint: var(--p);
+  }
+  .cell.cell-flagged {
+    --cell-tint: var(--s);
+  }
+  .cell.cell-questioned {
+    --cell-tint: var(--a);
+  }
+
+  @media (hover: hover) {
+    .cell.cell-hidden:hover,
+    .cell.cell-flagged:hover,
+    .cell.cell-questioned:hover {
+      filter: brightness(1.12);
+    }
+  }
+  .cell.cell-hidden:active {
+    transform: scale(0.92);
+  }
+
+  /* Sunken */
+  .cell.cell-revealed {
+    box-shadow: inset 0 1px 3px oklch(0% 0 0 / 0.18);
+  }
+  .cell.cell-mine {
+    background-color: oklch(var(--er) / 0.25);
+  }
+  .cell.cell-wrong-flag {
+    background-color: oklch(var(--wa) / 0.35);
+  }
+  .cell.cell-exploded {
+    background-color: oklch(var(--er));
+    box-shadow: 0 0 0 2px oklch(var(--er) / 0.45);
+  }
 }
