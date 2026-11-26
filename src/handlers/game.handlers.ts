@@ -1,66 +1,67 @@
 import { MINE_COUNT_DIRECTIONS } from "@app/config";
-import {
-  Cell,
-  CellLocation,
-  CountFlagResult,
-  RevealCellResult,
-} from "@app/types";
+import { Cell, CellLocation, RevealCellResult } from "@app/types";
+
+// All handlers are immutable: unchanged cells keep their object reference,
+// so memoized <Cell /> components only re-render when their own cell changes.
 
 //#region Public game functions
 
-export const generateBoards = (rows: number, cols: number): Cell[][] => {
-  const board = Array.from({ length: rows }, (_, row: number) =>
-    Array.from({ length: cols }, (_, col: number) => ({
+export const generateBoards = (rows: number, cols: number): Cell[][] =>
+  Array.from({ length: rows }, (_, row) =>
+    Array.from({ length: cols }, (_, col) => ({
       row,
       col,
       hasMine: false,
       isRevealed: false,
       isFlagged: false,
+      isQuestioned: false,
+      isExploded: false,
       adjacentMines: 0,
     }))
   );
-  return board;
-};
 
-export const placeMines = (board: Cell[][], mineCount: number) => {
-  return placeMinesOnBoard(board, mineCount);
-};
-
-export const placeMinesNoGuessing = (
+/**
+ * Places mines while keeping every cell within `safeRadius` of `safeCell` free.
+ * A radius of 0 guarantees a safe first click, 1 guarantees an opening.
+ */
+export const placeMines = (
   board: Cell[][],
   mineCount: number,
-  reservedCell: CellLocation
-) => {
-  const reservedCells = new Set<string>([
-    getCellUniqueId(reservedCell.row, reservedCell.col),
-    ...MINE_COUNT_DIRECTIONS.map(([dirRow, dirCol]) =>
-      getCellUniqueId(reservedCell.row + dirRow, reservedCell.col + dirCol)
-    ),
-  ]);
-
-  return placeMinesOnBoard(board, mineCount, reservedCells);
-};
-
-export const calculateAdjacentMines = (board: Cell[][]) => {
+  safeCell: CellLocation,
+  safeRadius: number
+): Cell[][] => {
   const { rows, cols } = getBoardDimensions(board);
+  const candidates: number[] = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const currentCell: Cell = board[row][col];
-      if (currentCell.hasMine) continue;
-
-      let count: number = 0;
-      for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-        const rowToCheck: number = row + dirRow;
-        const colToCheck: number = col + dirCol;
-        // Null pointer
-        if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
-
-        if (board[rowToCheck][colToCheck].hasMine) count++;
-      }
-      currentCell.adjacentMines = count;
+      const isSafe =
+        Math.abs(row - safeCell.row) <= safeRadius &&
+        Math.abs(col - safeCell.col) <= safeRadius;
+      if (!isSafe) candidates.push(row * cols + col);
     }
   }
-  return board;
+
+  // Partial Fisher-Yates shuffle: O(mineCount), no rejection sampling
+  const count = Math.min(mineCount, candidates.length);
+  const mines = new Uint8Array(rows * cols);
+  for (let i = 0; i < count; i++) {
+    const j = i + Math.floor(Math.random() * (candidates.length - i));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+    mines[candidates[i]] = 1;
+  }
+
+  return board.map((rowCells, row) =>
+    rowCells.map((cell, col) => {
+      let adjacentMines = 0;
+      for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+        const r = row + dirRow;
+        const c = col + dirCol;
+        if (!isInvalidCoordinate(r, c, rows, cols) && mines[r * cols + c])
+          adjacentMines++;
+      }
+      return { ...cell, hasMine: mines[row * cols + col] === 1, adjacentMines };
+    })
+  );
 };
 
 export const revealCell = (
@@ -68,202 +69,165 @@ export const revealCell = (
   row: number,
   col: number
 ): RevealCellResult => {
-  const cell: Cell = board[row][col];
-  // Cell has mine => Game lost
-  if (cell.hasMine)
-    return {
-      board,
-      hasMine: true,
-      needUpdateBoard: true,
-    };
-  // Flagged cell
-  if (cell.isFlagged)
-    return {
-      board,
-      hasMine: false,
-      needUpdateBoard: false,
-    };
-  // Chording
-  if (cell.isRevealed && cell.adjacentMines)
-    return revealNumberAdjacentCell(board, row, col);
-  // Normal cell
-  return revealCellIterative(board, row, col);
+  const cell = board[row][col];
+  if (cell.isFlagged) return { board, hasMine: false };
+  if (cell.isRevealed) {
+    return cell.adjacentMines
+      ? chordCell(board, row, col)
+      : { board, hasMine: false };
+  }
+  if (cell.hasMine) return { board: explode(board, [cell]), hasMine: true };
+
+  const draft = createDraft(board);
+  floodReveal(draft, row, col);
+  return { board: draft.next, hasMine: false };
 };
 
+/** Cycles: hidden -> flag -> question mark (if enabled) -> hidden */
 export const flagCell = (
   board: Cell[][],
   row: number,
-  col: number
+  col: number,
+  useQuestionMarks: boolean
 ): Cell[][] => {
-  const cell: Cell = board[row][col];
+  const cell = board[row][col];
   if (cell.isRevealed) return board;
 
-  cell.isFlagged = !cell.isFlagged;
-  return board;
-};
-
-export const isBoardClear = (board: Cell[][]): boolean => {
-  const { rows, cols } = getBoardDimensions(board);
-
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const cell: Cell = board[row][col];
-      if (!cell.hasMine && !cell.isRevealed) {
-        return false;
-      }
-    }
+  let patch: Partial<Cell>;
+  if (cell.isFlagged) {
+    patch = { isFlagged: false, isQuestioned: useQuestionMarks };
+  } else if (cell.isQuestioned) {
+    patch = { isQuestioned: false };
+  } else {
+    patch = { isFlagged: true };
   }
 
-  return true;
+  const draft = createDraft(board);
+  draft.update(row, col, patch);
+  return draft.next;
+};
+
+export const isBoardClear = (board: Cell[][]): boolean =>
+  board.every((rowCells) =>
+    rowCells.every((cell) => cell.hasMine || cell.isRevealed)
+  );
+
+/** Flags every remaining mine, as Minesweeper does on a win. */
+export const flagAllMines = (board: Cell[][]): Cell[][] =>
+  board.map((rowCells) =>
+    rowCells.map((cell) =>
+      cell.hasMine && !cell.isFlagged
+        ? { ...cell, isFlagged: true, isQuestioned: false }
+        : cell
+    )
+  );
+
+export const countFlags = (board: Cell[][]): number => {
+  let count = 0;
+  for (const rowCells of board) {
+    for (const cell of rowCells) if (cell.isFlagged) count++;
+  }
+  return count;
 };
 
 //#endregion
 //#region Private functions
 
-// @ts-ignore
-function revealCellRecursive(
-  board: Cell[][],
-  row: number,
-  col: number
-): Cell[][] {
-  const { rows, cols } = getBoardDimensions(board);
-  // Null pointer
-  if (isInvalidCoordinate(row, col, rows, cols)) return board;
-
-  const cell: Cell = board[row][col];
-  if (cell.isRevealed || cell.hasMine || cell.isFlagged) return board;
-  cell.isRevealed = true;
-  if (cell.adjacentMines === 0) {
-    for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-      board = revealCellRecursive(board, row + dirRow, col + dirCol);
-    }
-  }
-  return board;
+interface Draft {
+  next: Cell[][];
+  update: (row: number, col: number, patch: Partial<Cell>) => void;
 }
 
-function revealCellIterative(
-  board: Cell[][],
-  row: number,
-  col: number
-): RevealCellResult {
-  const { rows, cols } = getBoardDimensions(board);
-  // Null pointer
-  if (isInvalidCoordinate(row, col, rows, cols))
-    return {
-      board,
-      needUpdateBoard: false,
-      hasMine: false,
-    };
+/** Copy-on-write board: only rows that are touched get cloned. */
+function createDraft(board: Cell[][]): Draft {
+  const next = board.slice();
+  const copiedRows = new Uint8Array(board.length);
+  return {
+    next,
+    update(row, col, patch) {
+      if (!copiedRows[row]) {
+        next[row] = next[row].slice();
+        copiedRows[row] = 1;
+      }
+      next[row][col] = { ...next[row][col], ...patch };
+    },
+  };
+}
 
-  const stack: [number, number][] = [[row, col]];
-  const visited = new Set<string>([getCellUniqueId(row, col)]);
-  let needUpdateBoard = false;
+function floodReveal(draft: Draft, row: number, col: number) {
+  const { next } = draft;
+  const { rows, cols } = getBoardDimensions(next);
+  const visited = new Uint8Array(rows * cols);
+  const stack: number[] = [row * cols + col];
+  visited[row * cols + col] = 1;
 
   while (stack.length > 0) {
-    const [currentRow, currentCol] = stack.pop()!;
-    const cell = board[currentRow][currentCol];
+    const index = stack.pop()!;
+    const currentRow = Math.floor(index / cols);
+    const currentCol = index % cols;
+    const cell = next[currentRow][currentCol];
 
-    // Use `(cell.adjacentMines && cell.isRevealed)` instead of `cell.isRevealed`
-    // to handle cases where the player unflags a cell that was previously incorrectly flagged
-    // near a chording cell or an empty cell.
-    if (
-      cell.hasMine ||
-      cell.isFlagged ||
-      (cell.adjacentMines && cell.isRevealed)
-    )
+    // Revealed zero cells keep flooding to open neighbours that were wrongly
+    // flagged and later un-flagged.
+    if (cell.hasMine || cell.isFlagged || (cell.isRevealed && cell.adjacentMines))
       continue;
 
     if (!cell.isRevealed) {
-      cell.isRevealed = true;
-      needUpdateBoard = true;
+      draft.update(currentRow, currentCol, {
+        isRevealed: true,
+        isQuestioned: false,
+      });
     }
 
-    if (cell.adjacentMines === 0) {
-      for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-        const newRow = currentRow + dirRow;
-        const newCol = currentCol + dirCol;
-        const cellUniqueId = getCellUniqueId(newRow, newCol);
+    if (cell.adjacentMines !== 0) continue;
 
-        // Ensure the new cell is within bounds and has not been visited
-        if (
-          !isInvalidCoordinate(newRow, newCol, rows, cols) &&
-          !visited.has(cellUniqueId)
-        ) {
-          stack.push([newRow, newCol]);
-          visited.add(cellUniqueId);
-        }
-      }
+    for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+      const r = currentRow + dirRow;
+      const c = currentCol + dirCol;
+      if (isInvalidCoordinate(r, c, rows, cols) || visited[r * cols + c])
+        continue;
+      visited[r * cols + c] = 1;
+      stack.push(r * cols + c);
     }
   }
-
-  return {
-    board,
-    needUpdateBoard,
-    hasMine: false,
-  };
 }
 
-function revealNumberAdjacentCell(
-  board: Cell[][],
-  row: number,
-  col: number
-): RevealCellResult {
-  const cell: Cell = board[row][col];
-  let countFlagsResult: CountFlagResult = countFlags(board, row, col);
-  if (cell.adjacentMines != countFlagsResult.flagCount)
-    return {
-      board,
-      hasMine: false,
-      needUpdateBoard: false,
-    };
-
-  let needUpdateBoard = false;
-
+function chordCell(board: Cell[][], row: number, col: number): RevealCellResult {
   const { rows, cols } = getBoardDimensions(board);
-  for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-    const rowToCheck: number = row + dirRow;
-    const colToCheck: number = col + dirCol;
-    // Null pointer
-    if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
+  const hiddenNeighbours: Cell[] = [];
+  let flagCount = 0;
 
-    const result = revealCellIterative(board, rowToCheck, colToCheck);
-    board = result.board;
-    needUpdateBoard = result.needUpdateBoard || needUpdateBoard;
+  for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
+    const r = row + dirRow;
+    const c = col + dirCol;
+    if (isInvalidCoordinate(r, c, rows, cols)) continue;
+    const neighbour = board[r][c];
+    if (neighbour.isFlagged) flagCount++;
+    else if (!neighbour.isRevealed) hiddenNeighbours.push(neighbour);
   }
 
-  return {
-    board,
-    hasMine: countFlagsResult.hasFalseNegative,
-    needUpdateBoard,
-  };
+  if (flagCount !== board[row][col].adjacentMines || !hiddenNeighbours.length)
+    return { board, hasMine: false };
+
+  const hitMines = hiddenNeighbours.filter((cell) => cell.hasMine);
+  if (hitMines.length) return { board: explode(board, hitMines), hasMine: true };
+
+  const draft = createDraft(board);
+  for (const cell of hiddenNeighbours) floodReveal(draft, cell.row, cell.col);
+  return { board: draft.next, hasMine: false };
 }
 
-function countFlags(
-  board: Cell[][],
-  row: number,
-  col: number
-): CountFlagResult {
-  const { rows, cols } = getBoardDimensions(board);
-  let flagCount: number = 0;
-  let hasFalseNegative: boolean = false;
-  for (const [dirRow, dirCol] of MINE_COUNT_DIRECTIONS) {
-    const rowToCheck: number = row + dirRow;
-    const colToCheck: number = col + dirCol;
-    // Null pointer
-    if (isInvalidCoordinate(rowToCheck, colToCheck, rows, cols)) continue;
-
-    const cellToCheck: Cell = board[rowToCheck][colToCheck];
-    if (cellToCheck.isFlagged) {
-      flagCount++;
-      if (!cellToCheck.hasMine) {
-        hasFalseNegative = true;
-      }
-    }
-  }
-  return {
-    flagCount,
-    hasFalseNegative,
-  };
+/** Reveals all mines and wrong flags, marking the mines that were hit. */
+function explode(board: Cell[][], hitMines: Cell[]): Cell[][] {
+  const hit = new Set(hitMines);
+  return board.map((rowCells) =>
+    rowCells.map((cell) => {
+      if (cell.hasMine && !cell.isFlagged)
+        return { ...cell, isRevealed: true, isExploded: hit.has(cell) };
+      if (cell.isFlagged && !cell.hasMine) return { ...cell, isRevealed: true };
+      return cell;
+    })
+  );
 }
 
 function getBoardDimensions(board: Cell[][]) {
@@ -280,34 +244,6 @@ function isInvalidCoordinate(
   cols: number
 ) {
   return row < 0 || row >= rows || col < 0 || col >= cols;
-}
-
-function getCellUniqueId(row: number, col: number) {
-  return `${row}-${col}`;
-}
-
-function placeMinesOnBoard(
-  board: Cell[][],
-  mineCount: number,
-  reservedCells?: Set<string>
-): Cell[][] {
-  const { rows, cols } = getBoardDimensions(board);
-  let minesToPlace: number = mineCount;
-  while (minesToPlace > 0) {
-    const row: number = Math.floor(Math.random() * rows);
-    const col: number = Math.floor(Math.random() * cols);
-
-    if (reservedCells?.has(getCellUniqueId(row, col))) {
-      continue;
-    }
-
-    const cell: Cell = board[row][col];
-    if (!cell.hasMine) {
-      cell.hasMine = true;
-      minesToPlace--;
-    }
-  }
-  return board;
 }
 
 //#endregion

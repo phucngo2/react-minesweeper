@@ -1,7 +1,9 @@
 import {
+  ButtonFlagMode,
   ButtonPause,
   ButtonPlay,
   ButtonSettings,
+  ButtonStats,
   FlagCount,
   Timer,
 } from "@app/components";
@@ -11,9 +13,10 @@ import { useAtomValue } from "jotai";
 export const Header = () => {
   const isNewGame = useAtomValue(isGameNewAtom);
   return (
-    <div className="flex flex-row items-center justify-between gap-3 font-semibold">
+    <div className="flex flex-row flex-wrap items-center justify-between gap-3 font-semibold">
       <div className="flex flex-row items-center gap-2.5 card bg-neutral px-3 p-2">
         <ButtonSettings />
+        <ButtonStats />
         <ButtonPlay />
         {!isNewGame && <FlagCount />}
       </div>
@@ -21,6 +24,7 @@ export const Header = () => {
         <div className="flex flex-row items-center gap-2.5 card bg-neutral px-3 p-2">
           <Timer />
           <ButtonPause />
+          <ButtonFlagMode />
         </div>
       )}
     </div>

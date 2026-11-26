@@ -1,8 +1,10 @@
 import {
+  GameLevelSetting,
   GameLevelSettingOptions,
   GameLevelsRecord,
   GameStatesRecord,
   GameStatesType,
+  StandardGameLevelsType,
 } from "@app/types";
 
 export const MINE_COUNT_DIRECTIONS = [
@@ -20,7 +22,13 @@ export const GameLevels: GameLevelsRecord = {
   Beginner: "Beginner",
   Intermediate: "Intermediate",
   Expert: "Expert",
+  Custom: "Custom",
 } as const;
+export const STANDARD_GAME_LEVELS: StandardGameLevelsType[] = [
+  GameLevels.Beginner,
+  GameLevels.Intermediate,
+  GameLevels.Expert,
+];
 export const GAME_LEVEL_SETTING_OPTIONS: GameLevelSettingOptions = {
   [GameLevels.Beginner]: {
     rows: 9,
@@ -38,6 +46,24 @@ export const GAME_LEVEL_SETTING_OPTIONS: GameLevelSettingOptions = {
     mineCount: 99,
   },
 };
+
+// Same limits as Microsoft Minesweeper
+export const CUSTOM_LEVEL_LIMITS = {
+  minRows: 9,
+  maxRows: 24,
+  minCols: 9,
+  maxCols: 30,
+  minMines: 10,
+  maxMines: (rows: number, cols: number) => (rows - 1) * (cols - 1),
+};
+export const DEFAULT_CUSTOM_LEVEL: GameLevelSetting = {
+  rows: 20,
+  cols: 24,
+  mineCount: 99,
+};
+
+export const LONG_PRESS_MS = 400;
+export const MAX_BEST_TIMES = 5;
 
 export const GameStates: GameStatesRecord = {
   Lost: "Lost",
