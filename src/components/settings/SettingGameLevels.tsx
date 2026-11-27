@@ -1,3 +1,4 @@
+import { SegmentedControl } from "@app/components";
 import { CUSTOM_LEVEL_LIMITS, GameLevels } from "@app/config";
 import { GameLevelSetting, GameLevelsType } from "@app/types";
 import { clamp, normalizeCustomLevel } from "@app/utils";
@@ -11,12 +12,10 @@ interface Props {
   onCustomLevelChange: (customLevel: GameLevelSetting) => void;
 }
 
-const LEVEL_OPTIONS: { level: GameLevelsType; label: string }[] = [
-  { level: GameLevels.Beginner, label: `1️⃣ ${GameLevels.Beginner}` },
-  { level: GameLevels.Intermediate, label: `2️⃣ ${GameLevels.Intermediate}` },
-  { level: GameLevels.Expert, label: `3️⃣ ${GameLevels.Expert}` },
-  { level: GameLevels.Custom, label: `🛠️ ${GameLevels.Custom}` },
-];
+const LEVEL_OPTIONS = Object.values(GameLevels).map((level) => ({
+  value: level,
+  label: level,
+}));
 
 export const SettingGameLevels: React.FC<Props> = ({
   level,
@@ -47,37 +46,29 @@ export const SettingGameLevels: React.FC<Props> = ({
   ];
 
   return (
-    <div className="flex flex-col">
-      <div className="flex select-none items-center justify-between px-1 py-2">
-        Game Level
-      </div>
-      <div className="flex-wrap join">
-        {LEVEL_OPTIONS.map((option) => (
-          <input
-            key={option.level}
-            name="level"
-            type="radio"
-            className="h-10 btn join-item min-h-10"
-            value={option.level}
-            aria-label={option.label}
-            checked={level === option.level}
-            onChange={() => onLevelChange(option.level)}
-          />
-        ))}
-      </div>
+    <section>
+      <h4 className="list-header">Difficulty</h4>
+      <SegmentedControl
+        label="Difficulty"
+        options={LEVEL_OPTIONS}
+        value={level}
+        onChange={onLevelChange}
+        className="segmented-wrap"
+      />
       {level === GameLevels.Custom && (
-        <div className="grid grid-cols-3 gap-2 mt-3">
+        <div className="mt-3 list-group">
           {customFields.map(({ key, label, min, max }) => (
-            <label key={key} className="flex flex-col">
-              <div
-                className="flex select-none items-center justify-between px-1 py-2 text-sm"
-              >
-                {label} ({min}–{max})
-              </div>
+            <label key={key} className="list-row">
+              <span>
+                {label}{" "}
+                <span className="text-sm text-(--label-secondary) tabular-nums">
+                  {min}–{max}
+                </span>
+              </span>
               <input
                 type="number"
                 inputMode="numeric"
-                className="w-full text-sm input input-sm"
+                className="w-20 text-right input input-sm tabular-nums"
                 min={min}
                 max={max}
                 // 0 means "empty" so the field can be cleared while typing
@@ -100,6 +91,6 @@ export const SettingGameLevels: React.FC<Props> = ({
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 };

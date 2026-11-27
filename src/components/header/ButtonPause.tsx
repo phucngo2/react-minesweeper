@@ -18,7 +18,7 @@ export const ButtonPause = () => {
       <button
         onClick={togglePause}
         disabled={!isPlaying && !isPaused}
-        className="w-10 h-10 min-h-0 text-xl btn"
+        className="btn size-10 text-xl"
         aria-label={isPaused ? "Resume" : "Pause"}
       >
         {isPaused ? "▶️" : "⏸️"}

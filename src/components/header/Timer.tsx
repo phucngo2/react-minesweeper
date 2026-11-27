@@ -15,7 +15,7 @@ export const Timer = () => {
 
   return (
     <div className="tooltip tooltip-bottom" data-tip="Time waits for no one!">
-      <div className="h-10 min-h-0 text-base tabular-nums btn" role="timer">
+      <div className="h-10 text-base font-semibold btn font-rounded tabular-nums" role="timer">
         {formatTime(seconds)}
       </div>
     </div>

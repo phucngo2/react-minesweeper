@@ -17,7 +17,7 @@ export const ButtonStats = () => {
       <div className="tooltip tooltip-bottom" data-tip="Statistics">
         <button
           onClick={handleClick}
-          className="w-10 h-10 min-h-0 text-xl btn"
+          className="btn size-10 text-xl"
           aria-label="Statistics"
         >
           📊

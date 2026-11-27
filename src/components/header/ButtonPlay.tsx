@@ -10,7 +10,7 @@ export const ButtonPlay = () => {
     <div className="tooltip tooltip-bottom" data-tip="New Game (F2)">
       <button
         onClick={() => newGame()}
-        className="w-10 h-10 min-h-0 text-xl btn"
+        className="btn size-10 text-xl"
         aria-label="New game"
       >
         <ButtonPlayContent />

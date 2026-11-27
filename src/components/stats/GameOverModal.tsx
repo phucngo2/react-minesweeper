@@ -15,6 +15,9 @@ export const GameOverModal = () => {
   const stats = useAtomValue(statsAtom);
   const { newGame } = useNewGame();
   const [isOpen, setIsOpen] = useState(false);
+  // Keep showing the last result while the modal fades out after it resets.
+  const [shownResult, setShownResult] = useState(result);
+  if (result && result !== shownResult) setShownResult(result);
 
   useEffect(() => {
     if (!result) {
@@ -35,38 +38,40 @@ export const GameOverModal = () => {
 
   return (
     <Modal open={isOpen} onClose={() => setIsOpen(false)}>
-      {result && (
+      {shownResult && (
         <>
-          <h3
-            className={`text-2xl font-bold ${result.won ? "text-success" : "text-error"}`}
-          >
-            {result.won ? "🎉 You won!" : "💥 Game over"}
-          </h3>
-          <p className="mt-2">
-            {result.level} · Time{" "}
-            <span className="font-semibold tabular-nums">
-              {formatTime(result.time)}
-            </span>
-          </p>
-          {result.isBestTime && (
-            <div className="mt-3 badge badge-secondary badge-lg">
-              🏆 New best time!
+          <div className="flex flex-col items-center text-center">
+            <div className="text-5xl" aria-hidden>
+              {shownResult.won ? "🎉" : "💥"}
             </div>
-          )}
-          {result.level !== GameLevels.Custom && (
-            <div className="mt-4">
-              <StatsSummary stats={stats[result.level]} />
+            <h3
+              className={`mt-2 text-2xl font-bold ${shownResult.won ? "text-success" : "text-error"}`}
+            >
+              {shownResult.won ? "You won!" : "Game over"}
+            </h3>
+            <p className="mt-1 text-(--label-secondary)">
+              {shownResult.level} ·{" "}
+              <span className="font-semibold font-rounded tabular-nums">
+                {formatTime(shownResult.time)}
+              </span>
+            </p>
+            {shownResult.isBestTime && (
+              <div className="mt-3 rounded-full px-3 py-1 text-sm font-semibold text-secondary bg-secondary/15">
+                🏆 New best time!
+              </div>
+            )}
+          </div>
+          {shownResult.level !== GameLevels.Custom && (
+            <div className="mt-5">
+              <StatsSummary stats={stats[shownResult.level]} />
             </div>
           )}
           <div className="modal-action">
-            <button
-              className="h-10 min-h-10 btn"
-              onClick={() => setIsOpen(false)}
-            >
+            <button className="btn btn-gray" onClick={() => setIsOpen(false)}>
               View board
             </button>
             <button
-              className="h-10 min-h-10 btn btn-secondary"
+              className="btn btn-primary btn-frosted"
               onClick={handlePlayAgain}
             >
               Play again

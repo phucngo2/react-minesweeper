@@ -1,5 +1,6 @@
 import {
   Modal,
+  SegmentedControl,
   SettingGameLevels,
   SettingTheme,
   SettingToggle,
@@ -29,10 +30,10 @@ export const ModalSettings: React.FC<Props> = ({ open, onClose }) => (
 );
 
 const SETTINGS_TABS = [
-  { id: "game", label: "🎮 Game" },
-  { id: "theme", label: "🎨 Theme" },
+  { value: "game", label: "Game" },
+  { value: "theme", label: "Theme" },
 ] as const;
-type SettingsTab = (typeof SETTINGS_TABS)[number]["id"];
+type SettingsTab = (typeof SETTINGS_TABS)[number]["value"];
 
 const SettingsForm = ({ onClose }: { onClose: () => void }) => {
   const [tab, setTab] = useState<SettingsTab>("game");
@@ -72,62 +73,60 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <div role="tablist" className="mb-2 tabs tabs-box">
-        {SETTINGS_TABS.map((item) => (
-          <button
-            key={item.id}
-            role="tab"
-            aria-selected={item.id === tab}
-            className={`tab ${item.id === tab ? "tab-active" : ""}`}
-            onClick={() => setTab(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      <h3 className="mb-4 text-lg font-bold">Settings</h3>
+      <SegmentedControl
+        role="tablist"
+        label="Settings sections"
+        options={SETTINGS_TABS}
+        value={tab}
+        onChange={setTab}
+        className="mb-5"
+      />
       {tab === "game" ? (
-        <>
-          <div className="flex flex-col gap-2">
-            <SettingGameLevels
-              level={level}
-              onLevelChange={setLevel}
-              customLevel={custom}
-              onCustomLevelChange={setCustom}
-            />
-            <SettingToggle
-              label="First Move No Guessing"
-              description="The first click always opens an empty area."
-              checked={noGuessing}
-              onChange={setNoGuessing}
-            />
-            <SettingToggle
-              label="Question Marks"
-              description="Right-click / long-press cycles 🚩 → ❓ → empty."
-              checked={questionMarks}
-              onChange={setQuestionMarks}
-            />
-          </div>
-          <p className="mt-6 text-sm">
-            The settings will take effect when you click{" "}
-            <span className="underline">Save and Restart</span>
-          </p>
-        </>
+        <div className="flex flex-col gap-5">
+          <SettingGameLevels
+            level={level}
+            onLevelChange={setLevel}
+            customLevel={custom}
+            onCustomLevelChange={setCustom}
+          />
+          <section>
+            <h4 className="list-header">Gameplay</h4>
+            <div className="list-group">
+              <SettingToggle
+                label="First Move No Guessing"
+                description="The first click always opens an empty area."
+                checked={noGuessing}
+                onChange={setNoGuessing}
+              />
+              <SettingToggle
+                label="Question Marks"
+                description="Right-click / long-press cycles 🚩 → ❓ → empty."
+                checked={questionMarks}
+                onChange={setQuestionMarks}
+              />
+            </div>
+            <p className="list-footer">
+              Changes take effect when you click Save and Restart.
+            </p>
+          </section>
+        </div>
       ) : (
         <>
           <SettingTheme theme={theme} onChange={handleThemeChange} />
-          <p className="mt-6 text-sm">
-            The theme is applied instantly without restarting the game.
+          <p className="list-footer">
+            Themes apply instantly without restarting the game.
           </p>
         </>
       )}
       <div className="modal-action">
-        <button className="h-10 min-h-10 btn" onClick={onClose}>
+        <button className="btn btn-gray" onClick={onClose}>
           Close
         </button>
         {tab === "game" && (
           <button
             onClick={handleSave}
-            className="h-10 btn btn-primary min-h-10"
+            className="btn btn-primary btn-frosted"
           >
             Save and Restart
           </button>

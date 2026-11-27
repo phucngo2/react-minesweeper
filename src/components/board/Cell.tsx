@@ -28,8 +28,7 @@ const getLabel = (cell: ICell) => {
   return cell.adjacentMines ? `${cell.adjacentMines}` : "Empty";
 };
 
-const BASE_CLASS =
-  "cell w-[26px] h-[26px] p-1 btn min-w-6 min-h-6 border-0";
+const BASE_CLASS = "cell size-[26px] p-1 btn border-0";
 
 const getStateClass = (cell: ICell) => {
   if (cell.isExploded) return "cell-exploded";

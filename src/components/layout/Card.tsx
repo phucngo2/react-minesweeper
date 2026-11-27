@@ -10,7 +10,7 @@ export const Card: React.FC<Props> = ({ children }) => {
   const isNewGame = useAtomValue(isGameNewAtom);
   if (isNewGame) return <></>;
   return (
-    <div className="relative p-3 frosted card card-board w-fit">
+    <div className="relative p-3 frosted board-card w-fit">
       {children}
       <PauseOverlay />
     </div>

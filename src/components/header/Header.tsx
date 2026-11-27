@@ -14,15 +14,15 @@ export const Header = () => {
   const isNewGame = useAtomValue(isGameNewAtom);
   return (
     // z-10: frosted panels create stacking contexts, so lift the header (and its tooltips) above the board
-    <div className="relative z-10 flex flex-row flex-wrap items-center justify-between gap-3 font-semibold">
-      <div className="flex flex-row items-center gap-2.5 card card-header frosted px-3 p-2">
+    <div className="relative z-10 flex flex-row flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-row items-center gap-2.5 px-3 py-2 toolbar frosted">
         <ButtonSettings />
         <ButtonStats />
         <ButtonPlay />
         {!isNewGame && <FlagCount />}
       </div>
       {!isNewGame && (
-        <div className="flex flex-row items-center gap-2.5 card card-header frosted px-3 p-2">
+        <div className="flex flex-row items-center gap-2.5 px-3 py-2 toolbar frosted">
           <Timer />
           <ButtonPause />
           <ButtonFlagMode />

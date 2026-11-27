@@ -11,15 +11,44 @@ const formatStreak = (streak: number) => {
   return "—";
 };
 
-const getStreakBadge = (streak: number) => {
-  if (streak > 0) return "badge-success";
-  if (streak < 0) return "badge-error";
-  return "badge-ghost";
+const getStreakColor = (streak: number) => {
+  if (streak > 0) return "text-success";
+  if (streak < 0) return "text-error";
+  return "text-(--label-secondary)";
 };
 
-const STAT_CARD = "stat px-4 py-3 rounded-box border-none";
-const STAT_TITLE = "stat-title text-base text-inherit opacity-80";
-const STAT_VALUE = "stat-value text-3xl";
+const StatTile = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: React.ReactNode;
+  color?: string;
+}) => (
+  <div
+    className="stat-tile"
+    style={color ? ({ "--tile-color": color } as React.CSSProperties) : {}}
+  >
+    <span className="text-xs font-medium opacity-80">{label}</span>
+    <span className="text-3xl font-bold font-rounded tabular-nums">
+      {value}
+    </span>
+  </div>
+);
+
+const StatRow = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
+  <div className="list-row">
+    <dt>{label}</dt>
+    <dd className="font-semibold font-rounded tabular-nums">{children}</dd>
+  </div>
+);
 
 export const StatsSummary: React.FC<Props> = ({ stats }) => {
   const winRate = stats.played
@@ -27,84 +56,67 @@ export const StatsSummary: React.FC<Props> = ({ stats }) => {
     : 0;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className={`${STAT_CARD} bg-neutral text-neutral-content`}>
-          <div className={STAT_TITLE}>Played</div>
-          <div className={STAT_VALUE}>{stats.played}</div>
-        </div>
-        <div className={`${STAT_CARD} bg-success text-success-content`}>
-          <div className={STAT_TITLE}>Won</div>
-          <div className={STAT_VALUE}>{stats.won}</div>
-        </div>
-        <div className={`${STAT_CARD} bg-error text-error-content`}>
-          <div className={STAT_TITLE}>Lost</div>
-          <div className={STAT_VALUE}>{stats.played - stats.won}</div>
-        </div>
-        <div className={`${STAT_CARD} bg-info text-info-content`}>
-          <div className={STAT_TITLE}>Win rate</div>
-          <div className={STAT_VALUE}>{winRate}%</div>
-        </div>
+        <StatTile label="Played" value={stats.played} />
+        <StatTile
+          label="Won"
+          value={stats.won}
+          color="var(--color-success)"
+        />
+        <StatTile
+          label="Lost"
+          value={stats.played - stats.won}
+          color="var(--color-error)"
+        />
+        <StatTile
+          label="Win rate"
+          value={`${winRate}%`}
+          color="var(--color-info)"
+        />
       </div>
-      <table className="table table-sm leading-5">
-        <thead className="sr-only">
-          <tr>
-            <th scope="col">Statistic</th>
-            <th scope="col">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row" className="font-normal">
-              Current streak
-            </th>
-            <td className="text-right">
-              <span
-                className={`badge h-5 font-semibold ${getStreakBadge(stats.currentStreak)}`}
-              >
-                {formatStreak(stats.currentStreak)}
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row" className="font-normal">
-              Longest winning streak
-            </th>
-            <td className="text-right">
-              <span className="h-5 font-semibold badge badge-success">
-                {stats.longestWinStreak}
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row" className="font-normal">
-              Longest losing streak
-            </th>
-            <td className="text-right">
-              <span className="h-5 font-semibold badge badge-error">
-                {stats.longestLossStreak}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div>
-        <div className="mb-1 font-semibold">Best times</div>
+      <section>
+        <h4 className="list-header">Streaks</h4>
+        <dl className="list-group">
+          <StatRow label="Current streak">
+            <span className={getStreakColor(stats.currentStreak)}>
+              {formatStreak(stats.currentStreak)}
+            </span>
+          </StatRow>
+          <StatRow label="Longest winning streak">
+            <span className="text-success">{stats.longestWinStreak}</span>
+          </StatRow>
+          <StatRow label="Longest losing streak">
+            <span className="text-error">{stats.longestLossStreak}</span>
+          </StatRow>
+        </dl>
+      </section>
+      <section>
+        <h4 className="list-header">Best times</h4>
         {stats.bestTimes.length ? (
-          <ol className="pl-6 list-decimal">
-            {stats.bestTimes.map(({ time, date }) => (
-              <li key={date} className="tabular-nums">
-                {formatTime(time)}{" "}
-                <span className="text-sm opacity-60">
+          <ol className="list-group">
+            {stats.bestTimes.map(({ time, date }, index) => (
+              <li key={date} className="list-row">
+                <span className="flex items-baseline gap-3">
+                  <span className="w-4 text-sm text-(--label-secondary) tabular-nums">
+                    {index + 1}
+                  </span>
+                  <span className="font-semibold font-rounded tabular-nums">
+                    {formatTime(time)}
+                  </span>
+                </span>
+                <span className="text-sm text-(--label-secondary)">
                   {new Date(date).toLocaleDateString()}
                 </span>
               </li>
             ))}
           </ol>
         ) : (
-          <p className="text-sm opacity-60">No wins yet.</p>
+          <div className="list-group">
+            <p className="list-row text-(--label-secondary)">No wins yet.</p>
+          </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };
