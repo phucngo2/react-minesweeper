@@ -22,12 +22,14 @@ export const GameLevels: GameLevelsRecord = {
   Beginner: "Beginner",
   Intermediate: "Intermediate",
   Expert: "Expert",
+  Evil: "Evil",
   Custom: "Custom",
 } as const;
 export const STANDARD_GAME_LEVELS: StandardGameLevelsType[] = [
   GameLevels.Beginner,
   GameLevels.Intermediate,
   GameLevels.Expert,
+  GameLevels.Evil,
 ];
 export const GAME_LEVEL_SETTING_OPTIONS: GameLevelSettingOptions = {
   [GameLevels.Beginner]: {
@@ -44,6 +46,11 @@ export const GAME_LEVEL_SETTING_OPTIONS: GameLevelSettingOptions = {
     rows: 16,
     cols: 30,
     mineCount: 99,
+  },
+  [GameLevels.Evil]: {
+    rows: 19,
+    cols: 30,
+    mineCount: 130,
   },
 };
 

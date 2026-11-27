@@ -16,7 +16,11 @@ export interface CellLocation {
   col: number;
 }
 
-export type StandardGameLevelsType = "Beginner" | "Intermediate" | "Expert";
+export type StandardGameLevelsType =
+  | "Beginner"
+  | "Intermediate"
+  | "Expert"
+  | "Evil";
 export type GameLevelsType = StandardGameLevelsType | "Custom";
 export type GameLevelsRecord = EnumRecord<GameLevelsType>;
 export interface GameLevelSetting {

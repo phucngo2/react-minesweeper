@@ -1,5 +1,9 @@
 import { SegmentedControl } from "@app/components";
-import { CUSTOM_LEVEL_LIMITS, GameLevels } from "@app/config";
+import {
+  CUSTOM_LEVEL_LIMITS,
+  GAME_LEVEL_SETTING_OPTIONS,
+  GameLevels,
+} from "@app/config";
 import { GameLevelSetting, GameLevelsType } from "@app/types";
 import { clamp, normalizeCustomLevel } from "@app/utils";
 
@@ -32,8 +36,8 @@ export const SettingGameLevels: React.FC<Props> = ({
     min: number;
     max: number;
   }[] = [
-    { key: "rows", label: "Height", min: minRows, max: maxRows },
     { key: "cols", label: "Width", min: minCols, max: maxCols },
+    { key: "rows", label: "Height", min: minRows, max: maxRows },
     {
       key: "mineCount",
       label: "Mines",
@@ -45,6 +49,11 @@ export const SettingGameLevels: React.FC<Props> = ({
     },
   ];
 
+  const { rows, cols, mineCount } =
+    level === GameLevels.Custom
+      ? normalizeCustomLevel(customLevel)
+      : GAME_LEVEL_SETTING_OPTIONS[level];
+
   return (
     <section>
       <h4 className="list-header">Difficulty</h4>
@@ -53,22 +62,25 @@ export const SettingGameLevels: React.FC<Props> = ({
         options={LEVEL_OPTIONS}
         value={level}
         onChange={onLevelChange}
-        className="segmented-wrap"
+        className="segmented-fit segmented-wrap"
       />
+      <p className="list-footer tabular-nums" aria-live="polite">
+        {cols} × {rows} board · {mineCount} mines
+      </p>
       {level === GameLevels.Custom && (
-        <div className="mt-3 list-group">
+        <div className="grid grid-cols-3 gap-2 p-2 mt-3 list-group">
           {customFields.map(({ key, label, min, max }) => (
-            <label key={key} className="list-row">
-              <span>
+            <label key={key} className="flex flex-col min-w-0 gap-1 px-1">
+              <span className="text-xs text-(--label-secondary) truncate">
                 {label}{" "}
-                <span className="text-sm text-(--label-secondary) tabular-nums">
+                <span className="tabular-nums">
                   {min}–{max}
                 </span>
               </span>
               <input
                 type="number"
                 inputMode="numeric"
-                className="w-20 text-right input input-sm tabular-nums"
+                className="w-full input input-sm tabular-nums"
                 min={min}
                 max={max}
                 // 0 means "empty" so the field can be cleared while typing

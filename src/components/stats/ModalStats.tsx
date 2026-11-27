@@ -45,7 +45,7 @@ const StatsContent = ({ onClose }: { onClose: () => void }) => {
         options={LEVEL_OPTIONS}
         value={level}
         onChange={setLevel}
-        className="mb-5"
+        className="mb-5 segmented-wrap"
       />
       <StatsSummary stats={stats[level]} />
       <div className="modal-action">
