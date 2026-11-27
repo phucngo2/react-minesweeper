@@ -72,7 +72,7 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <div role="tablist" className="mb-2 tabs tabs-boxed">
+      <div role="tablist" className="mb-2 tabs tabs-box">
         {SETTINGS_TABS.map((item) => (
           <button
             key={item.id}

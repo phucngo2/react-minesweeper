@@ -11,8 +11,8 @@ export const SettingToggle: React.FC<Props> = ({
   checked,
   onChange,
 }) => (
-  <label className="cursor-pointer form-control">
-    <div className="label">
+  <label className="flex flex-col cursor-pointer">
+    <div className="flex select-none items-center justify-between px-1 py-2">
       <span>{label}</span>
       <input
         type="checkbox"

@@ -17,7 +17,8 @@ const getStreakBadge = (streak: number) => {
   return "badge-ghost";
 };
 
-const STAT_CARD = "stat px-4 py-3 rounded-box";
+const STAT_CARD = "stat px-4 py-3 rounded-box border-none";
+const STAT_TITLE = "stat-title text-base text-inherit opacity-80";
 const STAT_VALUE = "stat-value text-3xl";
 
 export const StatsSummary: React.FC<Props> = ({ stats }) => {
@@ -29,23 +30,23 @@ export const StatsSummary: React.FC<Props> = ({ stats }) => {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className={`${STAT_CARD} bg-neutral text-neutral-content`}>
-          <div className="stat-title text-inherit opacity-80">Played</div>
+          <div className={STAT_TITLE}>Played</div>
           <div className={STAT_VALUE}>{stats.played}</div>
         </div>
         <div className={`${STAT_CARD} bg-success text-success-content`}>
-          <div className="stat-title text-inherit opacity-80">Won</div>
+          <div className={STAT_TITLE}>Won</div>
           <div className={STAT_VALUE}>{stats.won}</div>
         </div>
         <div className={`${STAT_CARD} bg-error text-error-content`}>
-          <div className="stat-title text-inherit opacity-80">Lost</div>
+          <div className={STAT_TITLE}>Lost</div>
           <div className={STAT_VALUE}>{stats.played - stats.won}</div>
         </div>
         <div className={`${STAT_CARD} bg-info text-info-content`}>
-          <div className="stat-title text-inherit opacity-80">Win rate</div>
+          <div className={STAT_TITLE}>Win rate</div>
           <div className={STAT_VALUE}>{winRate}%</div>
         </div>
       </div>
-      <table className="table table-sm">
+      <table className="table table-sm leading-5">
         <thead className="sr-only">
           <tr>
             <th scope="col">Statistic</th>
@@ -59,7 +60,7 @@ export const StatsSummary: React.FC<Props> = ({ stats }) => {
             </th>
             <td className="text-right">
               <span
-                className={`badge font-semibold ${getStreakBadge(stats.currentStreak)}`}
+                className={`badge h-5 font-semibold ${getStreakBadge(stats.currentStreak)}`}
               >
                 {formatStreak(stats.currentStreak)}
               </span>
@@ -70,7 +71,7 @@ export const StatsSummary: React.FC<Props> = ({ stats }) => {
               Longest winning streak
             </th>
             <td className="text-right">
-              <span className="font-semibold badge badge-success">
+              <span className="h-5 font-semibold badge badge-success">
                 {stats.longestWinStreak}
               </span>
             </td>
@@ -80,7 +81,7 @@ export const StatsSummary: React.FC<Props> = ({ stats }) => {
               Longest losing streak
             </th>
             <td className="text-right">
-              <span className="font-semibold badge badge-error">
+              <span className="h-5 font-semibold badge badge-error">
                 {stats.longestLossStreak}
               </span>
             </td>

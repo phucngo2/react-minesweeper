@@ -1,7 +1,7 @@
 export const APP_STORAGE_KEY = "minesweeper-storage";
 export const STATS_STORAGE_KEY = "minesweeper-stats";
 
-// Keep in sync with `daisyui.themes` in tailwind.config.js
+// Keep in sync with the `@plugin "daisyui"` themes in src/App.css
 export const THEMES = [
   "dark",
   "light",
@@ -35,5 +35,8 @@ export const THEMES = [
   "dim",
   "nord",
   "sunset",
+  "caramellatte",
+  "abyss",
+  "silk",
 ] as const;
 export const DEFAULT_THEME: (typeof THEMES)[number] = "dark";

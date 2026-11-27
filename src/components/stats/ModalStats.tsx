@@ -34,7 +34,7 @@ const StatsContent = ({ onClose }: { onClose: () => void }) => {
   return (
     <>
       <h3 className="mb-4 text-lg font-bold">Statistics</h3>
-      <div role="tablist" className="mb-4 tabs tabs-boxed">
+      <div role="tablist" className="mb-4 tabs tabs-box">
         {STANDARD_GAME_LEVELS.map((item) => (
           <button
             key={item}

@@ -47,8 +47,10 @@ export const SettingGameLevels: React.FC<Props> = ({
   ];
 
   return (
-    <div className="form-control">
-      <div className="label">Game Level</div>
+    <div className="flex flex-col">
+      <div className="flex select-none items-center justify-between px-1 py-2">
+        Game Level
+      </div>
       <div className="flex-wrap join">
         {LEVEL_OPTIONS.map((option) => (
           <input
@@ -66,14 +68,16 @@ export const SettingGameLevels: React.FC<Props> = ({
       {level === GameLevels.Custom && (
         <div className="grid grid-cols-3 gap-2 mt-3">
           {customFields.map(({ key, label, min, max }) => (
-            <label key={key} className="form-control">
-              <div className="label label-text">
+            <label key={key} className="flex flex-col">
+              <div
+                className="flex select-none items-center justify-between px-1 py-2 text-sm"
+              >
                 {label} ({min}–{max})
               </div>
               <input
                 type="number"
                 inputMode="numeric"
-                className="w-full input input-bordered input-sm"
+                className="w-full text-sm input input-sm"
                 min={min}
                 max={max}
                 // 0 means "empty" so the field can be cleared while typing
