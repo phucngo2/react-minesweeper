@@ -9,7 +9,8 @@ import { useNewGame } from "@app/hooks";
 import {
   customLevelAtom,
   gameLevelAtom,
-  isNoGuessingModeAtom,
+  isFirstMoveNoGuessingAtom,
+  isNoGuessingBoardAtom,
   themeAtom,
   useQuestionMarksAtom,
 } from "@app/stores";
@@ -39,14 +40,33 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
   const [tab, setTab] = useState<SettingsTab>("game");
   const [gameLevel, setGameLevel] = useAtom(gameLevelAtom);
   const [customLevel, setCustomLevel] = useAtom(customLevelAtom);
-  const [isNoGuessingMode, setIsNoGuessingMode] = useAtom(isNoGuessingModeAtom);
+  const [isFirstMoveNoGuessing, setIsFirstMoveNoGuessing] = useAtom(
+    isFirstMoveNoGuessingAtom
+  );
+  const [isNoGuessingBoard, setIsNoGuessingBoard] = useAtom(
+    isNoGuessingBoardAtom
+  );
   const [useQuestionMarks, setUseQuestionMarks] = useAtom(useQuestionMarksAtom);
   const [theme, setTheme] = useAtom(themeAtom);
   const { newGame } = useNewGame();
 
   const [level, setLevel] = useState(gameLevel);
   const [custom, setCustom] = useState(customLevel);
-  const [noGuessing, setNoGuessing] = useState(isNoGuessingMode);
+  const [firstMoveNoGuessing, setFirstMoveNoGuessing] = useState(
+    isFirstMoveNoGuessing
+  );
+  const [noGuessingBoard, setNoGuessingBoard] = useState(isNoGuessingBoard);
+
+  // The two no-guessing modes are mutually exclusive: enabling one turns the
+  // other off.
+  const handleNoGuessingBoardChange = (checked: boolean) => {
+    setNoGuessingBoard(checked);
+    if (checked) setFirstMoveNoGuessing(false);
+  };
+  const handleFirstMoveNoGuessingChange = (checked: boolean) => {
+    setFirstMoveNoGuessing(checked);
+    if (checked) setNoGuessingBoard(false);
+  };
   const [questionMarks, setQuestionMarks] = useState(useQuestionMarks);
 
   // Theme is cosmetic: apply and persist right away, no restart needed.
@@ -59,12 +79,14 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
     const normalizedCustom = normalizeCustomLevel(custom);
     setGameLevel(level);
     setCustomLevel(normalizedCustom);
-    setIsNoGuessingMode(noGuessing);
+    setIsFirstMoveNoGuessing(firstMoveNoGuessing);
+    setIsNoGuessingBoard(noGuessingBoard);
     setUseQuestionMarks(questionMarks);
     saveAppStorage({
       gameLevel: level,
       customLevel: normalizedCustom,
-      isNoGuessingMode: noGuessing,
+      isNoGuessingMode: firstMoveNoGuessing,
+      isNoGuessingBoard: noGuessingBoard,
       useQuestionMarks: questionMarks,
     });
     newGame();
@@ -94,10 +116,16 @@ const SettingsForm = ({ onClose }: { onClose: () => void }) => {
             <h4 className="list-header">Gameplay</h4>
             <div className="list-group">
               <SettingToggle
+                label="No Guessing Mode"
+                description="Every board can be solved by logic alone. Start on the ✕ cell."
+                checked={noGuessingBoard}
+                onChange={handleNoGuessingBoardChange}
+              />
+              <SettingToggle
                 label="First Move No Guessing"
                 description="The first click always opens an empty area."
-                checked={noGuessing}
-                onChange={setNoGuessing}
+                checked={firstMoveNoGuessing}
+                onChange={handleFirstMoveNoGuessingChange}
               />
               <SettingToggle
                 label="Question Marks"

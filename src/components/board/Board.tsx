@@ -1,7 +1,13 @@
 import { Cell, CellHandlers } from "@app/components";
 import { LONG_PRESS_MS } from "@app/config";
 import { useCellActions } from "@app/hooks";
-import { boardAtom, tapModeAtom } from "@app/stores";
+import {
+  boardAtom,
+  isBoardPlayableAtom,
+  noGuessLayoutAtom,
+  startHintAtom,
+  tapModeAtom,
+} from "@app/stores";
 import { CellLocation } from "@app/types";
 import { useAtomValue } from "jotai";
 import { useMemo, useRef } from "react";
@@ -16,7 +22,12 @@ const getCellLocation = (el: HTMLElement): CellLocation => ({
 export const Board = () => {
   const board = useAtomValue(boardAtom);
   const tapMode = useAtomValue(tapModeAtom);
+  const isPlayable = useAtomValue(isBoardPlayableAtom);
+  const noGuessLayout = useAtomValue(noGuessLayoutAtom);
+  const startHint = useAtomValue(startHintAtom);
   const { revealCell, toggleFlag, markCell } = useCellActions();
+  // No Guessing Mode: marked cell the game must start from
+  const start = !isPlayable && noGuessLayout ? noGuessLayout.start : null;
 
   // Latest values for the stable handlers below
   const latestRef = useRef({ board, tapMode });
@@ -124,13 +135,18 @@ export const Board = () => {
       }}
     >
       {board.map((rowCells) =>
-        rowCells.map((cell) => (
-          <Cell
-            key={`${cell.row}-${cell.col}`}
-            cell={cell}
-            handlers={handlers}
-          />
-        ))
+        rowCells.map((cell) => {
+          const isStart = start?.row === cell.row && start.col === cell.col;
+          return (
+            <Cell
+              key={`${cell.row}-${cell.col}`}
+              cell={cell}
+              handlers={handlers}
+              isStart={isStart}
+              startHint={isStart ? startHint : 0}
+            />
+          );
+        })
       )}
     </div>
   );

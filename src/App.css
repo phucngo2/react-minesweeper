@@ -422,6 +422,39 @@
     backdrop-filter: saturate(150%) blur(24px);
   }
 
+  /* Shown while a no-guess board is generated; delayed so quick ones don't flash */
+  .generating-veil {
+    background-color: color-mix(in oklab, var(--color-base-200) 70%, transparent);
+    backdrop-filter: saturate(150%) blur(12px);
+    opacity: 0;
+    animation: fade-in 0.2s ease-out 0.15s forwards;
+  }
+  .spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 2.5px solid var(--fill-primary);
+    border-top-color: var(--color-base-content);
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* No Guessing Mode start cell: green ✕, outlined so it reads on any tile */
+  .start-marker {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke-linecap: round;
+    animation: start-pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .start-marker-outline {
+    stroke: var(--color-base-100);
+    stroke-width: 4.5;
+  }
+  .start-marker-cross {
+    stroke: var(--color-success);
+    stroke-width: 2.5;
+  }
+
   /* Apple-like continuous corners: between round (1) and squircle (2) */
   @supports (corner-shape: superellipse(1.4)) {
     .btn,
@@ -503,5 +536,22 @@
   .cell.cell-exploded {
     background-color: var(--color-error);
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-error) 45%, transparent);
+  }
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@keyframes start-pop {
+  from {
+    scale: 0.4;
+    opacity: 0;
   }
 }

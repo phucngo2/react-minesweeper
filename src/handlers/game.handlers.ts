@@ -50,6 +50,15 @@ export const placeMines = (
     mines[candidates[i]] = 1;
   }
 
+  return withMines(board, mines);
+};
+
+/**
+ * Applies a mine layout (1 = mine, indexed by row * cols + col) and computes
+ * adjacent counts. Existing marks (flags, question marks) are kept.
+ */
+export const withMines = (board: Cell[][], mines: Uint8Array): Cell[][] => {
+  const { rows, cols } = getBoardDimensions(board);
   return board.map((rowCells, row) =>
     rowCells.map((cell, col) => {
       let adjacentMines = 0;

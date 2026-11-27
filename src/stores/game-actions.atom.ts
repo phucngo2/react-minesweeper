@@ -6,7 +6,10 @@ import {
   isBoardClear,
   markCell,
   placeMines,
+  requestNoGuessBoard,
+  cancelNoGuessBoard,
   revealCell,
+  withMines,
 } from "@app/handlers";
 import { CellLocation, GameLevelsType } from "@app/types";
 import { atom, Getter, Setter } from "jotai";
@@ -15,7 +18,14 @@ import { gameLevelAtom } from "./game-level.atom";
 import { gameLevelDetailAtom } from "./game-level-detail.atom";
 import { gameStateAtom } from "./game-state.atom";
 import { isBoardPlayableAtom } from "./is-board-playable.atom";
-import { isNoGuessingModeAtom } from "./is-no-guessing-mode.atom";
+import { isFirstMoveNoGuessingAtom } from "./is-first-move-no-guessing.atom";
+import {
+  isGeneratingBoardAtom,
+  isNoGuessGameAtom,
+  isNoGuessingBoardAtom,
+  noGuessLayoutAtom,
+  startHintAtom,
+} from "./no-guess.atom";
 import { recordGameAtom, statsAtom } from "./stats.atom";
 import { timeAtom } from "./time.atom";
 import { useQuestionMarksAtom } from "./use-question-marks.atom";
@@ -31,6 +41,9 @@ export const lastGameResultAtom = atom<GameResult | null>(null);
 
 // Level of the game on the board; the selected level may change before restart.
 const activeLevelAtom = atom<GameLevelsType>(GameLevels.Beginner);
+
+// Identifies the latest no-guess generation so stale results are ignored
+let generationToken = 0;
 
 const finishGame = (get: Getter, set: Setter, won: boolean) => {
   const level = get(activeLevelAtom);
@@ -57,13 +70,38 @@ export const newGameAtom = atom(null, (get, set) => {
     set(recordGameAtom, { level, won: false, time: get(timeAtom) });
   }
 
-  const { rows, cols } = get(gameLevelDetailAtom);
+  const { rows, cols, mineCount } = get(gameLevelDetailAtom);
   set(activeLevelAtom, get(gameLevelAtom));
   set(boardAtom, generateBoards(rows, cols));
   set(timeAtom, 0);
   set(isBoardPlayableAtom, false);
   set(lastGameResultAtom, null);
   set(gameStateAtom, GameStates.Playing);
+
+  // No Guessing Mode: build the whole board now, then mark its start cell
+  const token = ++generationToken;
+  const isNoGuess = get(isNoGuessingBoardAtom);
+  set(isNoGuessGameAtom, isNoGuess);
+  set(noGuessLayoutAtom, null);
+  set(isGeneratingBoardAtom, isNoGuess);
+  if (!isNoGuess) {
+    cancelNoGuessBoard();
+    return;
+  }
+  requestNoGuessBoard({ rows, cols, mineCount })
+    .then(({ mines, start, solvable }) => {
+      if (token !== generationToken) return;
+      const startCell = { row: Math.floor(start / cols), col: start % cols };
+      set(noGuessLayoutAtom, { start: startCell, mines, solvable });
+    })
+    .catch(() => {
+      // Worker unavailable: fall back to a regular board with a safe opening
+      if (token !== generationToken) return;
+      set(isNoGuessGameAtom, false);
+    })
+    .finally(() => {
+      if (token === generationToken) set(isGeneratingBoardAtom, false);
+    });
 });
 
 export const revealCellAtom = atom(
@@ -73,15 +111,26 @@ export const revealCellAtom = atom(
     if (!board || get(gameStateAtom) !== GameStates.Playing) return;
     if (board[row][col].isFlagged) return;
 
-    // Mines are placed on the first reveal so the first click is always safe.
     if (!get(isBoardPlayableAtom)) {
-      const safeRadius = get(isNoGuessingModeAtom) ? 1 : 0;
-      board = placeMines(
-        board,
-        get(gameLevelDetailAtom).mineCount,
-        { row, col },
-        safeRadius
-      );
+      if (get(isNoGuessGameAtom)) {
+        // No Guessing Mode: the game starts on the marked cell only
+        const layout = get(noGuessLayoutAtom);
+        if (!layout || layout.start.row !== row || layout.start.col !== col) {
+          if (layout) set(startHintAtom, (hint) => hint + 1);
+          return;
+        }
+        board = withMines(board, layout.mines);
+      } else {
+        // Mines are placed on the first reveal so the first click is always
+        // safe (and opens an area with First Move No Guessing).
+        const safeRadius = get(isFirstMoveNoGuessingAtom) ? 1 : 0;
+        board = placeMines(
+          board,
+          get(gameLevelDetailAtom).mineCount,
+          { row, col },
+          safeRadius
+        );
+      }
       set(isBoardPlayableAtom, true);
     }
 
