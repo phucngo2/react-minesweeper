@@ -104,6 +104,14 @@
   }
 }
 
+/* Set briefly by applyTheme() so a theme swap doesn't animate colors */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
 /*
  * daisyUI 5 emits its components in a sub-layer of `utilities`, so these
  * overrides must live in `utilities` too (not `components`) to take precedence.
